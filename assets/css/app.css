@@ -958,28 +958,71 @@ button {
 
 /* -------------------------------------------------------------- Contact --- */
 
-.contact {
+/*
+ * Elérhetőség-kártyák a leírás fölött. Az auto-fit rács magától tölti ki a
+ * rendelkezésre álló szélességet: keskeny kijelzőn egymás alá, szélesebben
+ * egymás mellé kerülnek a kártyák.
+ */
+.factgrid {
   display: grid;
-  gap: 2px;
-  margin: 18px 0 4px;
-  padding: 6px 0;
-  border-top: 1px solid var(--line);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin: 0 0 24px;
 }
 
-.contact__row {
+.fact {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 11px 4px;
-  color: var(--text-2);
-  font-size: 14.5px;
-  border-radius: var(--radius-sm);
-  transition: background 0.15s ease, color 0.15s ease;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.contact__row .icon { color: var(--accent-text); width: 19px; height: 19px; }
+a.fact:hover {
+  background: var(--bg);
+  border-color: var(--line);
+  box-shadow: var(--shadow-sm);
+}
 
-a.contact__row:hover { background: var(--surface); color: var(--text); }
+.fact__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: var(--blue-soft);
+  color: var(--on-soft);
+}
+
+.fact__icon .icon { width: 18px; height: 18px; }
+
+.fact__body { min-width: 0; }
+
+.fact__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  /* A kártya szürke hátterén a halvány szürke nem érné el a WCAG AA-t. */
+  color: var(--text-2);
+  margin-bottom: 2px;
+}
+
+.fact__value {
+  display: block;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text);
+  line-height: 1.35;
+  /* Hosszú e-mail cím vagy URL ne lógjon ki a kártyából. */
+  overflow-wrap: anywhere;
+}
 
 /* --------------------------------------------------------------- Links ---- */
 

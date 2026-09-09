@@ -164,8 +164,7 @@ A rovat a kategóriák szerint **csoportosítva** jelenik meg, ebben a sorrendbe
 `Humánsegítő`
 
 Ha ezektől eltérő `category` értéket írsz be, az is működik — a lista végére
-kerül. A bejegyzés részletes nézetének alján megjelenik a
-**„Tovább az intézmény weboldalára”** gomb, ha megadtad a `website_url`-t.
+kerül.
 
 | Extra mező | Leírás |
 |---|---|
@@ -175,9 +174,17 @@ kerül. A bejegyzés részletes nézetének alján megjelenik a
 | `email` | E-mail cím — a részletnézetben kattintható. |
 
 > **Hol látszanak ezek?** A listában helytakarékosságból csak a cím (vagy ha az
-> nincs, a telefonszám) jelenik meg. A teljes kapcsolati blokk — cím, telefon,
-> e-mail — és a weboldal gomb a **bejegyzésre koppintva**, a részletes nézetben
-> érhető el.
+> nincs, a telefonszám) jelenik meg. A bejegyzésre koppintva, a részletes
+> nézetben az elérhetőségek **a leírás fölött**, ikonos kártyákban jelennek meg
+> (Telefon · E-mail cím · Webcím · Cím) — szélesebb kijelzőn egymás mellett,
+> telefonon egymás alatt. Csak a kitöltött mezők látszanak.
+>
+> A telefonszám, az e-mail cím és a webcím kártyája kattintható: hívást indít,
+> levelezőt nyit, illetve új lapon megnyitja a weboldalt.
+
+Ezek a mezők **az eseményeknél is használhatók** — ha megadod őket egy
+`"section": "esemenyek"` bejegyzésnél, ugyanúgy megjelennek a leírás fölött
+(például a szervező telefonszáma vagy a helyszín címe).
 
 ---
 

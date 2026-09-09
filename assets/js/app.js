@@ -1104,23 +1104,56 @@
     return '';
   }
 
-  /** Kattintható kapcsolat-sorok: cím, telefon, e-mail. */
-  function contactBlock(item) {
-    var rows = '';
-    if (item.address) {
-      rows += '<div class="contact__row">' + icon('i-map-pin') +
-        '<span>' + esc(item.address) + '</span></div>';
-    }
+  /** A webcímből olvasható rövid alakot csinál: "orlaihaz.mezobereny.hu". */
+  function prettyUrl(url) {
+    return String(url).replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+  }
+
+  /** Egy elérhetőség-kártya: ikon + felirat + érték. */
+  function factCard(options) {
+    var body = '<span class="fact__icon">' + icon(options.icon) + '</span>' +
+      '<span class="fact__body">' +
+        '<span class="fact__label">' + esc(options.label) + '</span>' +
+        '<span class="fact__value">' + esc(options.value) + '</span>' +
+      '</span>';
+
+    if (!options.href) return '<div class="fact">' + body + '</div>';
+
+    var external = options.external ? ' target="_blank" rel="noopener"' : '';
+    return '<a class="fact" href="' + esc(options.href) + '"' + external + '>' +
+      body + '</a>';
+  }
+
+  /**
+   * Elérhetőségek kártyás rácsban, a leírás FÖLÖTT — hosszú szövegnél így nem
+   * szorulnak a lap aljára. Csak a kitöltött mezők jelennek meg.
+   */
+  function contactCards(item) {
+    var cards = '';
+
     if (item.phone) {
-      rows += '<a class="contact__row" href="tel:' +
-        esc(String(item.phone).replace(/[^+0-9]/g, '')) + '">' + icon('i-phone') +
-        '<span>' + esc(item.phone) + '</span></a>';
+      cards += factCard({
+        icon: 'i-phone', label: 'Telefon', value: item.phone,
+        href: 'tel:' + String(item.phone).replace(/[^+0-9]/g, '')
+      });
     }
     if (item.email) {
-      rows += '<a class="contact__row" href="mailto:' + esc(item.email) + '">' +
-        icon('i-mail') + '<span>' + esc(item.email) + '</span></a>';
+      cards += factCard({
+        icon: 'i-mail', label: 'E-mail cím', value: item.email,
+        href: 'mailto:' + item.email
+      });
     }
-    return rows ? '<div class="contact">' + rows + '</div>' : '';
+    if (item.website_url) {
+      cards += factCard({
+        icon: 'i-globe', label: 'Webcím', value: prettyUrl(item.website_url),
+        href: item.website_url, external: true
+      });
+    }
+    if (item.address) {
+      cards += factCard({ icon: 'i-map-pin', label: 'Cím', value: item.address });
+    }
+
+    return cards ? '<div class="factgrid">' + cards + '</div>' : '';
   }
 
   function renderInfoDetail(id) {
@@ -1167,18 +1200,11 @@
             '</div>' +
           '</div>' +
           '<div>' +
+            contactCards(item) +
             '<div class="prose">' +
               (formatContent(item.content) ||
                 (item.excerpt ? '<p>' + esc(item.excerpt) + '</p>' : '')) +
             '</div>' +
-            contactBlock(item) +
-            (item.website_url
-              ? '<a class="readmore" href="' + esc(item.website_url) + '" ' +
-                'target="_blank" rel="noopener">' +
-                esc((INFO_SECTIONS[item.section] &&
-                     INFO_SECTIONS[item.section].linkLabel) ||
-                    'Tovább a weboldalra') + icon('i-external') + '</a>'
-              : '') +
           '</div>' +
         '</div>' +
       '</article>';
