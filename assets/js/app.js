@@ -276,6 +276,82 @@
     }
   }
 
+  // ---------------------------------------------------------------- Téma --
+
+  var THEME_KEY = 'mb.theme';
+
+  function storedTheme() {
+    try {
+      var value = localStorage.getItem(THEME_KEY);
+      return value === 'dark' || value === 'light' ? value : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function systemPrefersDark() {
+    return typeof matchMedia === 'function' &&
+      matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  /*
+   * A kézi választást memóriában is tartjuk, nem csak a localStorage-ban:
+   * privát böngészőablakban az írás kivételt dobhat, de a kapcsolónak
+   * olyankor is működnie kell — legalább az adott oldalbetöltés idejére.
+   */
+  var themeOverride = storedTheme();
+
+  /** A ténylegesen érvényes téma: a kézi választás, különben a rendszeré. */
+  function currentTheme() {
+    return themeOverride || (systemPrefersDark() ? 'dark' : 'light');
+  }
+
+  function applyTheme(theme) {
+    var root = document.documentElement;
+    if (themeOverride) {
+      root.setAttribute('data-theme', themeOverride);
+    } else {
+      // Nincs kézi választás: a CSS a rendszerbeállítást követi.
+      root.removeAttribute('data-theme');
+    }
+
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f1216' : '#0a66ff');
+
+    syncThemeButtons(theme);
+  }
+
+  function syncThemeButtons(theme) {
+    var label = theme === 'dark'
+      ? 'Váltás világos témára'
+      : 'Váltás sötét témára';
+    var buttons = document.querySelectorAll('[data-theme-toggle]');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute('aria-label', label);
+      buttons[i].setAttribute('title', label);
+    }
+  }
+
+  function toggleTheme() {
+    themeOverride = currentTheme() === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem(THEME_KEY, themeOverride);
+    } catch (error) { /* privát mód: a téma csak erre az oldalbetöltésre él */ }
+    applyTheme(themeOverride);
+  }
+
+  /** A kapcsoló gomb — mindkét ikont tartalmazza, a CSS választ közülük. */
+  function themeToggle(variant) {
+    var label = currentTheme() === 'dark'
+      ? 'Váltás világos témára'
+      : 'Váltás sötét témára';
+    return '<button type="button" class="themetoggle themetoggle--' + variant + '" ' +
+      'data-theme-toggle aria-label="' + label + '" title="' + label + '">' +
+      icon('i-moon', 'icon icon--moon') +
+      icon('i-sun', 'icon icon--sun') +
+      '</button>';
+  }
+
   // ------------------------------------------------------------ Bookmarks --
 
   var BOOKMARK_KEY = 'mb.bookmarks';
@@ -457,10 +533,11 @@
 
   function topbar(options) {
     var config = options || {};
+    // Bal felső sarok: részletnézeten a vissza gomb, egyébként a témaváltó.
     var left = config.back
-      ? '<a class="icon-btn" href="' + esc(config.back) + '" aria-label="Vissza">' + icon('i-back') + '</a>'
-      : '<button type="button" class="icon-btn topbar__menu" data-nav-toggle aria-label="Menü">' +
-        icon('i-menu') + '</button>';
+      ? '<a class="icon-btn" href="' + esc(config.back) + '" aria-label="Vissza">' +
+        icon('i-back') + '</a>' + themeToggle('bar')
+      : themeToggle('bar');
     return '<div class="topbar">' + left + '<div class="topbar__spacer"></div>' +
       (config.search === false ? '' :
         '<a class="icon-btn" href="#/felfedezes" aria-label="Keresés">' + icon('i-search') + '</a>') +
@@ -647,6 +724,7 @@
           '<div class="floatbar">' +
             '<a class="float-btn" href="#/hirek" aria-label="Vissza">' + icon('i-back') + '</a>' +
             '<span class="floatbar__spacer"></span>' +
+            themeToggle('bar') +
             '<button type="button" class="float-btn" id="bookmark" aria-pressed="' + saved + '" ' +
               'aria-label="Mentés">' + icon('i-bookmark') + '</button>' +
             '<a class="float-btn" href="' + esc(article.url) + '" target="_blank" rel="noopener" ' +
@@ -1026,23 +1104,56 @@
     return '';
   }
 
-  /** Kattintható kapcsolat-sorok: cím, telefon, e-mail. */
-  function contactBlock(item) {
-    var rows = '';
-    if (item.address) {
-      rows += '<div class="contact__row">' + icon('i-map-pin') +
-        '<span>' + esc(item.address) + '</span></div>';
-    }
+  /** A webcímből olvasható rövid alakot csinál: "orlaihaz.mezobereny.hu". */
+  function prettyUrl(url) {
+    return String(url).replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+  }
+
+  /** Egy elérhetőség-kártya: ikon + felirat + érték. */
+  function factCard(options) {
+    var body = '<span class="fact__icon">' + icon(options.icon) + '</span>' +
+      '<span class="fact__body">' +
+        '<span class="fact__label">' + esc(options.label) + '</span>' +
+        '<span class="fact__value">' + esc(options.value) + '</span>' +
+      '</span>';
+
+    if (!options.href) return '<div class="fact">' + body + '</div>';
+
+    var external = options.external ? ' target="_blank" rel="noopener"' : '';
+    return '<a class="fact" href="' + esc(options.href) + '"' + external + '>' +
+      body + '</a>';
+  }
+
+  /**
+   * Elérhetőségek kártyás rácsban, a leírás FÖLÖTT — hosszú szövegnél így nem
+   * szorulnak a lap aljára. Csak a kitöltött mezők jelennek meg.
+   */
+  function contactCards(item) {
+    var cards = '';
+
     if (item.phone) {
-      rows += '<a class="contact__row" href="tel:' +
-        esc(String(item.phone).replace(/[^+0-9]/g, '')) + '">' + icon('i-phone') +
-        '<span>' + esc(item.phone) + '</span></a>';
+      cards += factCard({
+        icon: 'i-phone', label: 'Telefon', value: item.phone,
+        href: 'tel:' + String(item.phone).replace(/[^+0-9]/g, '')
+      });
     }
     if (item.email) {
-      rows += '<a class="contact__row" href="mailto:' + esc(item.email) + '">' +
-        icon('i-mail') + '<span>' + esc(item.email) + '</span></a>';
+      cards += factCard({
+        icon: 'i-mail', label: 'E-mail cím', value: item.email,
+        href: 'mailto:' + item.email
+      });
     }
-    return rows ? '<div class="contact">' + rows + '</div>' : '';
+    if (item.website_url) {
+      cards += factCard({
+        icon: 'i-globe', label: 'Webcím', value: prettyUrl(item.website_url),
+        href: item.website_url, external: true
+      });
+    }
+    if (item.address) {
+      cards += factCard({ icon: 'i-map-pin', label: 'Cím', value: item.address });
+    }
+
+    return cards ? '<div class="factgrid">' + cards + '</div>' : '';
   }
 
   function renderInfoDetail(id) {
@@ -1066,6 +1177,7 @@
           '<div class="floatbar">' +
             '<a class="float-btn" href="' + back + '" aria-label="Vissza">' + icon('i-back') + '</a>' +
             '<span class="floatbar__spacer"></span>' +
+            themeToggle('bar') +
             '<button type="button" class="float-btn" id="bookmark" aria-pressed="' + saved + '" ' +
               'aria-label="Mentés">' + icon('i-bookmark') + '</button>' +
           '</div>' +
@@ -1088,18 +1200,11 @@
             '</div>' +
           '</div>' +
           '<div>' +
+            contactCards(item) +
             '<div class="prose">' +
               (formatContent(item.content) ||
                 (item.excerpt ? '<p>' + esc(item.excerpt) + '</p>' : '')) +
             '</div>' +
-            contactBlock(item) +
-            (item.website_url
-              ? '<a class="readmore" href="' + esc(item.website_url) + '" ' +
-                'target="_blank" rel="noopener">' +
-                esc((INFO_SECTIONS[item.section] &&
-                     INFO_SECTIONS[item.section].linkLabel) ||
-                    'Tovább a weboldalra') + icon('i-external') + '</a>'
-              : '') +
           '</div>' +
         '</div>' +
       '</article>';
@@ -1175,18 +1280,31 @@
   }
 
   function scrollTop() {
+    // Az újrarajzolt nézet friss kapcsológombokat tartalmaz — a feliratukat
+    // a jelenlegi témához igazítjuk.
+    syncThemeButtons(currentTheme());
     window.scrollTo(0, 0);
   }
 
-  // A hamburger gomb mobilon a felfedezés/kereső nézetre visz, ahol
-  // minden kategória elérhető — külön fiókmenü nélkül.
   document.addEventListener('click', function (event) {
-    if (event.target.closest('[data-nav-toggle]')) location.hash = '#/felfedezes';
+    if (event.target.closest('[data-theme-toggle]')) { toggleTheme(); return; }
     if (event.target.closest('[data-notify]')) location.hash = '#/hirek';
   });
 
+  // Ha a látogató nem választott kézzel témát, kövessük a rendszerbeállítást
+  // akkor is, ha az menet közben változik (pl. esti automatikus váltás).
+  if (typeof matchMedia === 'function') {
+    var darkQuery = matchMedia('(prefers-color-scheme: dark)');
+    var onSystemChange = function () {
+      if (!themeOverride) applyTheme(systemPrefersDark() ? 'dark' : 'light');
+    };
+    if (darkQuery.addEventListener) darkQuery.addEventListener('change', onSystemChange);
+    else if (darkQuery.addListener) darkQuery.addListener(onSystemChange);
+  }
+
   window.addEventListener('hashchange', route);
 
+  applyTheme(currentTheme());
   loadNews().catch(function () { /* a nézet kezeli a hibát */ });
   route();
 

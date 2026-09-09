@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>JSON szerkesztő — Mezőberény App</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23111827'/><text x='50' y='70' font-size='54' font-family='monospace' font-weight='700' fill='%2334d399' text-anchor='middle'>{}</text></svg>">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="e-copy" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/>
+      <path d="M15.5 5.5h-9a2 2 0 0 0-2 2v9"/>
+    </g>
+    <g id="e-download" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3.5v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19.5h15"/>
+    </g>
+    <g id="e-plus" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+      <path d="M12 5.5v13M5.5 12h13"/>
+    </g>
+    <g id="e-trash" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.5 7h15M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7"/>
+      <path d="M6.5 7l.8 11.3A1.8 1.8 0 0 0 9.1 20h5.8a1.8 1.8 0 0 0 1.8-1.7L17.5 7"/>
+    </g>
+    <g id="e-copy2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 5v14M5 12h14"/>
+    </g>
+    <g id="e-refresh" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4.5V10h-5.5"/>
+    </g>
+    <g id="e-warn" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.5"/><path d="M12 7.8v4.6M12 16.2h.01"/>
+    </g>
+    <g id="e-check" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m5 12.5 4.5 4.5L19 7.5"/>
+    </g>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="top__inner">
+    <div>
+      <h1 class="top__title">JSON szerkesztő</h1>
+      <p class="top__sub">Mezőberény App — tartalom előállítása kézi beillesztéshez</p>
+    </div>
+    <button type="button" class="btn btn--ghost" id="theme-btn">Sötét / világos</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="note note--warn">
+    <span class="note__icon"><svg class="ic" viewBox="0 0 24 24"><use href="#e-warn"/></svg></span>
+    <div>
+      <strong>Ez az oldal semmit nem ment el magától.</strong>
+      Az eszköz csak JSON szöveget állít elő — a <code>data/…json</code> fájlba
+      neked kell beilleszteni (GitHub → a fájl → <em>Edit</em> → beillesztés →
+      <em>Commit changes</em>).
+      <br>
+      A lap nincs linkelve a főoldalról és a keresők elől is el van rejtve, de a
+      GitHub Pages minden fájlt nyilvánosan szolgál ki: aki ismeri a címet, meg
+      tudja nyitni. Jelszót ne írj ide.
+    </div>
+  </div>
+
+  <!-- 1. lépés ------------------------------------------------------------ -->
+  <section class="card">
+    <h2 class="card__title"><span class="step">1</span> Mit szerkesztesz?</h2>
+    <div class="row">
+      <label class="field">
+        <span class="field__label">Szegmens</span>
+        <select id="segment">
+          <option value="info">Infó tartalom (data/info.json)</option>
+          <option value="news">Hírek (data/news.json)</option>
+        </select>
+      </label>
+      <label class="field" id="section-field">
+        <span class="field__label">Rovat</span>
+        <select id="section">
+          <option value="esemenyek">Események</option>
+          <option value="intezmenyek">Intézmények</option>
+          <option value="elerhetosegek">Elérhetőségek</option>
+          <option value="egyeb">Egyéb</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <!-- 2. lépés ------------------------------------------------------------ -->
+  <section class="card">
+    <h2 class="card__title"><span class="step">2</span> Meglévő tartalom betöltése</h2>
+    <p class="card__hint">
+      Tölts be egy meglévő fájlt, hogy a bejegyzéseket szerkeszthesd, és hogy a
+      teljes fájl kimenete is helyes legyen. Ha kihagyod, üresből indulsz.
+    </p>
+    <div class="btnrow">
+      <button type="button" class="btn btn--primary" id="load-live">Élő fájl betöltése</button>
+      <button type="button" class="btn" id="load-file">Fájl feltöltése…</button>
+      <button type="button" class="btn" id="load-paste">JSON beillesztése…</button>
+      <input type="file" id="file-input" accept=".json,application/json" hidden>
+    </div>
+    <p class="status" id="load-status">Nincs betöltve semmi.</p>
+  </section>
+
+  <!-- Hírfrissítő --------------------------------------------------------- -->
+  <section class="card" id="fetch-card" hidden>
+    <h2 class="card__title"><span class="step">↻</span> Hírek lekérése a forrásoldalról</h2>
+    <p class="card__hint">
+      A böngésző nem tud közvetlenül a <code>mezobereny.hu</code>-ra kérni
+      (a forrásoldal nem engedélyezi), ezért az automatikus lekérés egy külső
+      átjárón keresztül próbálkozik, és el is bukhat. A kézi mód mindig működik.
+    </p>
+    <div class="btnrow">
+      <button type="button" class="btn btn--primary" id="fetch-auto">Automatikus lekérés</button>
+      <button type="button" class="btn" id="fetch-manual">Kézi mód (HTML beillesztése)</button>
+    </div>
+    <div id="manual-box" hidden>
+      <ol class="steps">
+        <li>Nyisd meg: <a href="https://mezobereny.hu/s/hirek" target="_blank" rel="noopener">mezobereny.hu/s/hirek</a></li>
+        <li>Jobb klikk → <em>Oldal forrásának megtekintése</em> (vagy <kbd>Ctrl</kbd>+<kbd>U</kbd>)</li>
+        <li>Jelöld ki az egészet (<kbd>Ctrl</kbd>+<kbd>A</kbd>), másold (<kbd>Ctrl</kbd>+<kbd>C</kbd>), és illeszd be ide:</li>
+      </ol>
+      <textarea id="manual-html" rows="6" placeholder="Ide illeszd be a forrásoldal HTML kódját…"></textarea>
+      <div class="btnrow">
+        <button type="button" class="btn btn--primary" id="manual-parse">Feldolgozás</button>
+      </div>
+    </div>
+    <p class="status" id="fetch-status"></p>
+  </section>
+
+  <!-- 3. lépés ------------------------------------------------------------ -->
+  <section class="card">
+    <h2 class="card__title"><span class="step">3</span> Bejegyzések</h2>
+    <div class="btnrow">
+      <button type="button" class="btn btn--primary" id="new-entry">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#e-plus"/></svg> Új bejegyzés
+      </button>
+      <span class="status" id="list-count"></span>
+    </div>
+    <div id="entry-list" class="entrylist"></div>
+  </section>
+
+  <!-- 4. lépés ------------------------------------------------------------ -->
+  <section class="card" id="form-card" hidden>
+    <h2 class="card__title"><span class="step">4</span> Szerkesztés</h2>
+    <form id="entry-form" autocomplete="off"></form>
+    <p class="errors" id="form-errors"></p>
+    <div class="btnrow">
+      <button type="button" class="btn btn--primary" id="apply-entry">Bejegyzés mentése a listába</button>
+      <button type="button" class="btn" id="cancel-entry">Mégse</button>
+    </div>
+  </section>
+
+  <!-- 5. lépés ------------------------------------------------------------ -->
+  <section class="card">
+    <h2 class="card__title"><span class="step">5</span> Kimenet</h2>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab" data-out="entry" aria-pressed="true">Csak ez a bejegyzés</button>
+      <button type="button" class="tab" data-out="file" aria-pressed="false">Teljes fájl</button>
+    </div>
+    <p class="card__hint" id="out-hint"></p>
+    <pre class="output" id="output">—</pre>
+    <div class="btnrow">
+      <button type="button" class="btn btn--primary" id="copy-out">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#e-copy"/></svg> Másolás
+      </button>
+      <button type="button" class="btn" id="download-out">
+        <svg class="ic" viewBox="0 0 24 24"><use href="#e-download"/></svg> Letöltés
+      </button>
+      <span class="status" id="copy-status"></span>
+    </div>
+  </section>
+
+  <p class="foot">
+    A szerkesztő nem része az alkalmazásnak: nem hivatkozik rá menüpont, és nem
+    módosít semmit a repóban.
+  </p>
+</main>
+
+<dialog id="paste-dialog">
+  <form method="dialog">
+    <h3>JSON beillesztése</h3>
+    <textarea id="paste-json" rows="10" placeholder='{ "items": [ … ] }'></textarea>
+    <p class="errors" id="paste-error"></p>
+    <div class="btnrow">
+      <button class="btn btn--primary" value="ok" id="paste-ok">Betöltés</button>
+      <button class="btn" value="cancel">Mégse</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="editor.js"></script>
+</body>
+</html>

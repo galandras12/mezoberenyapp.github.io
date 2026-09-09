@@ -14,6 +14,8 @@ Nincs backend, nincs adatbázis és **nincs build lépés** — minden statikus 
 
 - [Fájlszerkezet](#fájlszerkezet)
 - [GitHub Pages bekapcsolása](#github-pages-bekapcsolása)
+- [Sötét és világos téma](#sötét-és-világos-téma)
+- [JSON szerkesztő (`/editor`)](#json-szerkesztő-editor)
 - [Tartalom szerkesztése — áttekintés](#tartalom-szerkesztése--áttekintés)
   - [Események](#események)
   - [Intézmények](#intézmények)
@@ -42,6 +44,10 @@ Nincs backend, nincs adatbázis és **nincs build lépés** — minden statikus 
 │   └── requirements.txt
 ├── .github/workflows/
 │   └── update-news.yml           # munkaidőben óránkénti futtatás + commit
+├── editor/                       # önálló JSON szerkesztő (nincs linkelve a főoldalról)
+│   ├── index.html
+│   ├── editor.css
+│   └── editor.js
 └── .nojekyll                     # kikapcsolja a felesleges Jekyll feldolgozást
 ```
 
@@ -67,6 +73,27 @@ További nézetek: `#/felfedezes` (keresés és kategóriaszűrés a hírek köz
 3. **Branch:** `main`, mappa: **`/ (root)`** — majd **Save**
 4. Néhány perc múlva az oldal elérhető lesz:
    `https://galandras12.github.io/mezoberenyapp.github.io/`
+
+---
+
+## Sötét és világos téma
+
+Az alkalmazás mindkét témát támogatja. A **bal felső sarokban** lévő kör alakú
+gomb vált közöttük:
+
+- **világos témában** fekete körben fehér fogyó hold (kattintásra sötét lesz)
+- **sötét témában** fehér körben fekete napocska (kattintásra világos lesz)
+
+A gomb helye: mobilon a fejléc bal szélén (részletnézetben a képre lebegve),
+desktopon az oldalsáv tetején.
+
+Amíg a látogató nem választ kézzel, az alkalmazás a **rendszer** beállítását
+követi, és menet közbeni váltásra (pl. esti automatikus sötét mód) is reagál.
+A kézi választást a böngésző elmenti, így legközelebb is megmarad.
+
+A színek CSS változókban (tokenekben) vannak, a komponensek nem tartalmaznak
+beégetett színt — ezért egy szín módosításához elég a `:root` blokkot és a
+sötét téma blokkját szerkeszteni az `assets/css/app.css` fájl tetején.
 
 ---
 
@@ -142,8 +169,7 @@ A rovat a kategóriák szerint **csoportosítva** jelenik meg, ebben a sorrendbe
 `Humánsegítő`
 
 Ha ezektől eltérő `category` értéket írsz be, az is működik — a lista végére
-kerül. A bejegyzés részletes nézetének alján megjelenik a
-**„Tovább az intézmény weboldalára”** gomb, ha megadtad a `website_url`-t.
+kerül.
 
 | Extra mező | Leírás |
 |---|---|
@@ -151,6 +177,19 @@ kerül. A bejegyzés részletes nézetének alján megjelenik a
 | `address` | Cím — a listában és a részletnézetben is látszik. |
 | `phone` | Telefonszám — a részletnézetben kattintható (hívás indul). |
 | `email` | E-mail cím — a részletnézetben kattintható. |
+
+> **Hol látszanak ezek?** A listában helytakarékosságból csak a cím (vagy ha az
+> nincs, a telefonszám) jelenik meg. A bejegyzésre koppintva, a részletes
+> nézetben az elérhetőségek **a leírás fölött**, ikonos kártyákban jelennek meg
+> (Telefon · E-mail cím · Webcím · Cím) — szélesebb kijelzőn egymás mellett,
+> telefonon egymás alatt. Csak a kitöltött mezők látszanak.
+>
+> A telefonszám, az e-mail cím és a webcím kártyája kattintható: hívást indít,
+> levelezőt nyit, illetve új lapon megnyitja a weboldalt.
+
+Ezek a mezők **az eseményeknél is használhatók** — ha megadod őket egy
+`"section": "esemenyek"` bejegyzésnél, ugyanúgy megjelennek a leírás fölött
+(például a szervező telefonszáma vagy a helyszín címe).
 
 ---
 
@@ -213,6 +252,62 @@ Példa (a JSON-ben a sortörés `\n`):
 ```json
 "content": "## Ügyfélfogadás\n\n- Hétfő: 8:00–16:00\n- Kedd: **zárva**\n\n> Ünnepnapokon szünetel.\n\nRészletek a [honlapon](https://mezobereny.hu)."
 ```
+
+---
+
+## JSON szerkesztő (`/editor`)
+
+A `data/*.json` fájlok kézi szerkesztése helyett használható egy űrlapos
+segédeszköz: **`/editor/`** (pl.
+`https://galandras12.github.io/mezoberenyapp.github.io/editor/`).
+
+> **Nem titkos oldal.** A GitHub Pages minden fájlt nyilvánosan szolgál ki, és
+> ezen a szolgáltatáson nincs bejelentkeztetés. A szerkesztőre nem hivatkozik
+> menüpont, és `noindex` jelzéssel a keresők elől is rejtve van, de aki ismeri
+> a címét, meg tudja nyitni. Ez kis kockázat, mert az eszköz **nem tud írni a
+> repóba** (csak szöveget állít elő), és minden adat, amit mutat, eleve
+> nyilvános. Jelszót, privát adatot ne írj bele.
+
+### Mit tud
+
+1. **Szegmens választása:** Infó tartalom vagy Hírek. Infónál egy második
+   legördülőben a rovat is (Események · Intézmények · Elérhetőségek · Egyéb).
+2. **Betöltés:** az élő fájl egy kattintással, vagy fájlfeltöltés, vagy JSON
+   beillesztés. Betöltés után a meglévő bejegyzések listázva, szerkeszthetők,
+   másolhatók, törölhetők.
+3. **Űrlapos szerkesztés:** a rovathoz tartozó mezők jelennek meg (eseménynél
+   időpont, intézménynél telefon/e-mail/webcím/cím stb.). Az azonosító a
+   címből automatikusan képződik, a kategóriákat legördülő javasolja.
+4. **Ellenőrzés:** kötelező mezők, azonosító formátuma és egyedisége,
+   URL-ek és e-mail cím formátuma.
+5. **Kimenet két alakban:**
+   - *Csak ez a bejegyzés* — az objektum, amit beillesztesz az `items` tömbbe
+   - *Teljes fájl* — a kész fájl, amivel az egészet lecserélheted
+
+   Mindkettő másolható és letölthető.
+
+Az időpontokat budapesti időként értelmezi, és a helyes nyári/téli eltolással
+írja ki (pl. decemberi eseménynél `+01:00`, júniusinál `+02:00`).
+
+### Hírek lekérése a szerkesztőben
+
+A szerkesztő ki tudja generálni a `news.json` tartalmát is, ha a soron
+következő automatikus frissítést nem akarod megvárni:
+
+- **Automatikus lekérés:** a `mezobereny.hu` nem engedélyezi a böngészőből
+  érkező kéréseket (nem küld CORS fejlécet), ezért ez egy külső átjárón
+  keresztül próbálkozik — előfordulhat, hogy nem sikerül.
+- **Kézi mód (mindig működik):** megnyitod a `/s/hirek` oldalt, megnézed az
+  oldal forrását (<kbd>Ctrl</kbd>+<kbd>U</kbd>), az egészet bemásolod a
+  szerkesztőbe, és az helyben feldolgozza.
+
+Mindkét mód ugyanazt a szerkezetet olvassa, mint a `scraper/scrape.py`, és a
+már betöltött hírek megtalált képeit megtartja.
+
+> Megjegyzés: a hírek amúgy is frissülnek maguktól munkanapokon 8 és 18 óra
+> között, és az **Actions → Hírek frissítése → Run workflow** gombbal bármikor
+> kézzel is indíthatók. A szerkesztő hírfunkciója akkor hasznos, ha a
+> workflow épp nem elérhető, vagy kézzel akarsz belenyúlni az adatokba.
 
 ---
 
