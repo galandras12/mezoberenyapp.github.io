@@ -143,7 +143,10 @@ def parse_excerpt(box) -> str:
     for paragraph in box.find_all("p", recursive=False):
         if "clear" in (paragraph.get("class") or []):
             continue
-        text = clean_text(paragraph.get_text(" ", strip=True))
+        # Elválasztó NÉLKÜL olvassuk a bekezdést: a get_text(" ") minden
+        # szövegdarab közé szóközt tenne, és a forrásoldalon a szavak gyakran
+        # inline <span>-ekre esnek szét — abból lett pl. "ne gyedik".
+        text = clean_text(paragraph.get_text())
         if text:
             parts.append(text)
         if sum(len(part) for part in parts) > EXCERPT_MAX_CHARS:

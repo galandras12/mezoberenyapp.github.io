@@ -1,0 +1,344 @@
+/* =============================================================================
+   JSON szerkesztő — önálló segédeszköz, nem része az alkalmazásnak.
+   Szándékosan sűrűbb, "műszerfal" jellegű felület, nem a publikus design.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --sunken: #f0f2f5;
+  --text: #14181e;
+  --text-2: #4a5160;
+  --muted: #626b7a;
+  --line: #dfe3e8;
+  --accent: #0a66ff;
+  --accent-text: #0a66ff;
+  --accent-hover: #0047c2;
+  --ok: #0f7b46;
+  --ok-bg: #e6f6ee;
+  --warn-bg: #fff8e6;
+  --warn-line: #f0d288;
+  --warn-text: #6f4a10;
+  --danger: #b42318;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1014;
+  --panel: #151a20;
+  --sunken: #1c222a;
+  --text: #eef1f5;
+  --text-2: #b6bfcc;
+  --muted: #9aa4b2;
+  --line: #262d37;
+  --accent: #2f6fe0;
+  --accent-text: #7fb0ff;
+  --accent-hover: #4d8dff;
+  --ok: #6ee7b7;
+  --ok-bg: #10281f;
+  --warn-bg: #2b2214;
+  --warn-line: #50401f;
+  --warn-text: #f0c96a;
+  --danger: #ff8a80;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; }
+
+/* A saját display szabályaink (pl. .field) különben felülírnák a
+   hidden attribútumot, és a rejtett elem láthatóan maradna. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ic { width: 17px; height: 17px; flex: none; }
+
+code, kbd {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+a { color: var(--accent-text); }
+
+/* ---------------------------------------------------------------- Fejléc -- */
+
+.top {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 20px;
+}
+
+.top__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.top__title { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.top__sub { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+
+.wrap { max-width: 900px; margin: 0 auto; padding: 20px 20px 60px; }
+
+/* ---------------------------------------------------------------- Kártya -- */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.card__title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.card__hint { margin: 6px 0 14px; font-size: 13.5px; color: var(--muted); }
+
+/* --------------------------------------------------------------- Űrlapok -- */
+
+.row { display: flex; flex-wrap: wrap; gap: 14px; }
+
+.field { display: block; flex: 1 1 240px; min-width: 0; margin-bottom: 12px; }
+
+.field--wide { flex-basis: 100%; }
+
+.field__label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text-2);
+  margin-bottom: 5px;
+}
+
+.field__hint { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+input[type="text"], input[type="url"], input[type="email"], input[type="tel"],
+input[type="datetime-local"], input[type="date"], select, textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 11px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+textarea { font-family: var(--mono); font-size: 13px; resize: vertical; }
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(10, 102, 255, 0.16);
+}
+
+.check { display: flex; align-items: center; gap: 9px; font-size: 14px; }
+.check input { width: 17px; height: 17px; }
+
+/* --------------------------------------------------------------- Gombok --- */
+
+.btnrow { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 15px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+}
+
+.btn:hover { background: var(--sunken); }
+.btn:active { transform: scale(0.98); }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.btn--ghost { background: none; }
+
+.btn--danger { color: var(--danger); }
+
+.btn--icon { padding: 7px 9px; }
+
+/* ------------------------------------------------------------ Állapotok --- */
+
+.status { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+.status--ok { color: var(--ok); font-weight: 600; }
+.status--err { color: var(--danger); font-weight: 600; }
+
+.errors { font-size: 13.5px; color: var(--danger); margin: 4px 0 10px; white-space: pre-line; }
+.errors:empty { display: none; }
+
+.note {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.note--warn {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  color: var(--warn-text);
+}
+
+.note__icon { flex: none; display: grid; place-items: center; }
+.note__icon .ic { width: 20px; height: 20px; }
+
+.steps { margin: 6px 0 12px; padding-left: 20px; font-size: 13.5px; color: var(--text-2); }
+.steps li { margin-bottom: 5px; }
+
+/* ------------------------------------------------------------ Lista ------- */
+
+.entrylist { margin-top: 14px; display: grid; gap: 7px; }
+
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sunken);
+}
+
+.entry--active { border-color: var(--accent); background: var(--panel); }
+
+.entry__body { flex: 1; min-width: 0; }
+
+.entry__title {
+  font-weight: 650;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry__meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry__actions { display: flex; gap: 5px; flex: none; }
+
+.empty {
+  padding: 22px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13.5px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+
+/* ------------------------------------------------------------- Kimenet ---- */
+
+.tabs { display: flex; gap: 7px; margin-bottom: 12px; }
+
+.tab {
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.output {
+  margin: 0 0 12px;
+  padding: 14px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-height: 420px;
+  overflow: auto;
+  white-space: pre;
+  color: var(--text);
+}
+
+.foot { font-size: 12.5px; color: var(--muted); text-align: center; margin-top: 24px; }
+
+/* -------------------------------------------------------------- Dialógus -- */
+
+dialog {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 20px;
+  width: min(680px, 92vw);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+dialog::backdrop { background: rgba(8, 12, 20, 0.5); }
+
+dialog h3 { margin: 0 0 12px; font-size: 17px; }
+
+@media (max-width: 560px) {
+  .card { padding: 15px; }
+  .top__inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
