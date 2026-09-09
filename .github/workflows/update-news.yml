@@ -2,8 +2,10 @@ name: Hírek frissítése
 
 on:
   schedule:
-    # Minden óra 0. percében (UTC).
-    - cron: '0 * * * *'
+    # UTC 6:00–17:00, hétfőtől péntekig. A cél a budapesti 8:00–18:00, de a
+    # cron nem ismeri a nyári időszámítást, ezért itt tágabb az ablak, és a
+    # "Időablak ellenőrzése" lépés vágja pontosra Europe/Budapest szerint.
+    - cron: '0 6-17 * * 1-5'
   workflow_dispatch:
 
 # A GITHUB_TOKEN írhasson a repóba — külön secret nem kell.
@@ -20,10 +22,36 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Időablak ellenőrzése
+        id: window
+        run: |
+          hour=$(TZ=Europe/Budapest date +%H)
+          dow=$(TZ=Europe/Budapest date +%u)   # 1 = hétfő … 7 = vasárnap
+          local_time=$(TZ=Europe/Budapest date '+%Y-%m-%d %H:%M %Z')
+
+          # Kézi indításnál mindig fusson, hogy tesztelhető legyen.
+          if [ "${GITHUB_EVENT_NAME}" != "schedule" ]; then
+            echo "Kézi indítás — az időablak ellenőrzését kihagyjuk."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # A 10# előtag kell, különben a bash a "08"-at oktálisnak veszi.
+          if [ "$((10#$dow))" -le 5 ] && \
+             [ "$((10#$hour))" -ge 8 ] && [ "$((10#$hour))" -le 18 ]; then
+            echo "Helyi idő: ${local_time} — a hírfrissítés lefut."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Helyi idő: ${local_time} — munkaidőn kívül, a futás kimarad."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Repó letöltése
+        if: steps.window.outputs.run == 'true'
         uses: actions/checkout@v4
 
       - name: Python beállítása
+        if: steps.window.outputs.run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -31,21 +59,32 @@ jobs:
           cache-dependency-path: scraper/requirements.txt
 
       - name: Függőségek telepítése
+        if: steps.window.outputs.run == 'true'
         run: pip install -r scraper/requirements.txt
 
       - name: Scraper futtatása
+        if: steps.window.outputs.run == 'true'
         run: python scraper/scrape.py
 
+      - name: Hibaállapot rögzítése
+        # Ha a futás a scraperen kívül bukott el (pl. függőségtelepítés), a
+        # scraper nem tudta kiírni a hibát — itt pótoljuk, hogy az
+        # alkalmazás tájékoztató sávot tudjon megjeleníteni.
+        if: failure() && steps.window.outputs.run == 'true'
+        run: python scraper/scrape.py --mark-failure
+
       - name: Változás commitolása
+        # always(): hiba esetén is commitolni akarjuk a status.json-t.
+        if: always() && steps.window.outputs.run == 'true'
         run: |
-          if git diff --quiet -- data/news.json; then
-            echo "A news.json nem változott, nincs mit commitolni."
+          if git diff --quiet -- data/; then
+            echo "A data/ mappa nem változott, nincs mit commitolni."
             exit 0
           fi
 
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/news.json
+          git add data/
           git commit -m "chore: hírek frissítése [skip ci]"
 
           # Közben érkezhetett másik commit — rebase, majd újrapróbálás.
