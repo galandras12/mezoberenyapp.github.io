@@ -1,8 +1,6 @@
 {
   "last_updated": "2026-09-09T00:00:00Z",
-
   "_szerkesztes": "Ezt a fájlt kézzel szerkeszd (GitHub → Edit file). A linkek a 'links' blokkban, a tartalmak az 'items' tömbben vannak. A mezők leírása a README.md-ben található.",
-
   "links": {
     "facebook_url": "",
     "website_url": "https://mezobereny.hu",
@@ -10,7 +8,6 @@
     "developer_url": "https://github.com/galandras12",
     "developer_email": "admin@galandras.com"
   },
-
   "items": [
     {
       "id": "20260909netrevalok",
@@ -42,19 +39,19 @@
       "event_date": "2026-08-20T10:00:00+02:00",
       "content": "> **Ez egy minta esemény**, amely már elmúlt."
     },
-
     {
       "id": "intezmeny-varoshaza",
       "section": "intezmenyek",
       "category": "Városháza",
-      "title": "MINTA — Városháza",
-      "excerpt": "Az intézmény rövid bemutatása.",
-      "image_url": null,
+      "title": "Mezőberény Város Önkormányzata",
+      "excerpt": "Mezőberényi Polgármesteri Hivatal",
+      "image_url": "https://mezobereny.hu/assets/images/left_varoshaza.jpg",
       "website_url": "https://mezobereny.hu",
-      "address": "",
-      "phone": "",
-      "email": "",
-      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra.\n\nAz intézmény bemutatása, feladatai, tudnivalók."
+      "address": "5650 Mezőberény, Kossuth tér 1. /Városháza épülete/",
+      "phone": "+36704002407",
+      "email": "info@mezobereny.hu",
+      "updated_at": "2026-09-09T00:00:00+02:00",
+      "content": "Mezőberény a \"finoman elbűvölő település\"* nevében nagy tisztelettel és szeretettel köszöntöm a világhálón városunkba érkező vendégeket, érdeklődőket!\n \n\n(*The NewYork Times 2014. február 5., Set Kugel)\n\n \n\nA város újratelepítése óta eltelt közel három évszázados múlt és a várossá válást követő több mint negyed század bizonyította az itt élő emberek optimizmusát, fogékonyságát az újra, nyitottságát, teremtőerejét.\n\n\nTisztelt Látogatók! Bízom benne, hogy honlapunk segítségére lesz Mezőberény jobb megismerésében, a városi események nyomon követésében, a velünk való kapcsolat felvételében és fenntartásában. E weboldalon Önök mindig napra kész, biztos forrásból származó, pontos információval fognak találkozni városunkról, annak közigazgatásáról, intézményeiről, vállalkozóiról, vendéglátóhelyeiről, látnivalóinkról, orvosi ellátásáról, egyszóval mindarról, ami úgy az itt lakóknak, mint a város iránt érdeklődő kapcsolatkeresőknek és tartóknak, fontos illetve hasznos lehet.\n\nA nyitottság jegyében kérem Önöket: ismerjék meg jobban városunkat, keressék a személyes kapcsolatokat, találjanak partnerekre az itt élőkben. Örömmel mutatjuk és osztjuk meg értékeinket, szívesen büszkélkedünk eredményeinkkel.\n\nÉrezzék jól magukat nálunk, s térjenek vissza rendszeresen hozzánk. Nem csak itt a világhálón, de személyesen is szívesen látjuk a hozzánk érkezőket!\n\n \n\nSiklósi István\npolgármester"
     },
     {
       "id": "intezmeny-orlai-haz",
@@ -67,6 +64,7 @@
       "address": "5650 Mezőberény Fő út 6.",
       "phone": "(70) 400 2474",
       "email": "opskmm@gmail.com",
+      "updated_at": "2026-09-09T00:00:00+02:00",
       "content": "Az Orlai Petrics Soma Könyvtár, Muzeális Gyűjtemény és Művelődési Központ többfunkciós, közös irányítású (komplex, összetett feladatrendszerű) kulturális intézmény. Az Orlai ház (hivatalos rövidített nevén) munkatársai öt épületben végzik feladataikat. Az intézményegységek a szakmai sajátosságok maximális figyelembevétele mellett, a tárgyi, személyi feltételek legjobb kihasználására törekedve, a tevékenységek összehangolva végzik a munkájukat az Alapító Okirat, a Szervezeti és Működési Szabályzat szerint, az intézményi stratégia, az éves munkaterv és rendezvényterv alapján. Az intézmény két ízben is elnyerte a Minősített Közművelődési Intézmény Címet."
     },
     {
@@ -78,8 +76,9 @@
       "image_url": "https://orlaihaz.mezobereny.hu/wp-content/uploads/2024/06/Konyvtar_t-1.png",
       "website_url": "https://orlaihaz.mezobereny.hu/",
       "address": "5650 Mezőberény Fő út 6.",
-      "phone": "(70) 400 2474",
+      "phone": "+36704002474",
       "email": "opskmm@gmail.com",
+      "updated_at": "2026-09-09T00:00:00+02:00",
       "content": "Az Orlai Petrics Soma Könyvtár, Muzeális Gyűjtemény és Művelődési Központ többfunkciós, közös irányítású (komplex, összetett feladatrendszerű) kulturális intézmény. Az Orlai ház (hivatalos rövidített nevén) munkatársai öt épületben végzik feladataikat. Az intézményegységek a szakmai sajátosságok maximális figyelembevétele mellett, a tárgyi, személyi feltételek legjobb kihasználására törekedve, a tevékenységek összehangolva végzik a munkájukat az Alapító Okirat, a Szervezeti és Működési Szabályzat szerint, az intézményi stratégia, az éves munkaterv és rendezvényterv alapján. Az intézmény két ízben is elnyerte a Minősített Közművelődési Intézmény Címet."
     },
     {
@@ -91,8 +90,9 @@
       "image_url": "https://orlaihaz.mezobereny.hu/wp-content/uploads/2024/06/Muzeum_t-1.png",
       "website_url": "https://muzeum.orlaihaz.mezobereny.hu/",
       "address": "5650 Mezőberény Fő út 6.",
-      "phone": "(70) 400 2474",
+      "phone": "+36704002474",
       "email": "opskmm@gmail.com",
+      "updated_at": "2026-09-09T00:00:00+02:00",
       "content": "Az Orlai Petrics Soma Könyvtár, Muzeális Gyűjtemény és Művelődési Központ többfunkciós, közös irányítású (komplex, összetett feladatrendszerű) kulturális intézmény. Az Orlai ház (hivatalos rövidített nevén) munkatársai öt épületben végzik feladataikat. Az intézményegységek a szakmai sajátosságok maximális figyelembevétele mellett, a tárgyi, személyi feltételek legjobb kihasználására törekedve, a tevékenységek összehangolva végzik a munkájukat az Alapító Okirat, a Szervezeti és Működési Szabályzat szerint, az intézményi stratégia, az éves munkaterv és rendezvényterv alapján. Az intézmény két ízben is elnyerte a Minősített Közművelődési Intézmény Címet."
     },
     {
@@ -101,12 +101,13 @@
       "category": "Óvoda",
       "title": "Mosolygó Központi Óvoda",
       "excerpt": "MEZŐBERÉNY VÁROS ÓVODAI INTÉZMÉNYE",
-      "image_url": null,
-      "website_url": "",
-      "address": "",
-      "phone": "",
-      "email": "",
-      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+      "image_url": "https://mezobereny.hu/assets/img_feltoltott/images/%C3%B3voda%20log%C3%B3%20kicsi%20atlatszo.gif",
+      "website_url": "https://berenyiovodak.mezobereny.hu/",
+      "address": "5650 Mezőberény Liget tér 5.",
+      "phone": "+36704002521",
+      "email": "ovoda@mezobereny.hu",
+      "updated_at": "2026-09-09T00:00:00+02:00",
+      "content": "Mosolygó Központi Óvoda"
     },
     {
       "id": "csiribiri-ovoda",
@@ -199,7 +200,6 @@
       "email": "",
       "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
     },
-
     {
       "id": "elerhetoseg-onkormanyzat",
       "section": "elerhetosegek",
