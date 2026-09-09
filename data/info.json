@@ -20,26 +20,6 @@
       "content": "Netrevalók  2026. szeptember 9-én 15-től 17 óráig az Orlai házban. További információ: Szegedi Mária, 20/219-1109."
     },
     {
-      "id": "esemeny-minta-2",
-      "section": "esemenyek",
-      "category": "Kultúra",
-      "title": "MINTA — Kiállításmegnyitó",
-      "excerpt": "A második minta esemény, hogy látszódjon a sorrend.",
-      "image_url": null,
-      "event_date": "2026-10-04T18:00:00+02:00",
-      "content": "> **Ez egy minta esemény.**\n\nA leírás ide kerül."
-    },
-    {
-      "id": "esemeny-minta-3",
-      "section": "esemenyek",
-      "category": "Programok",
-      "title": "MINTA — Már lezajlott esemény",
-      "excerpt": "Ez a múltban van, ezért a „Véget ért események” közé kerül.",
-      "image_url": null,
-      "event_date": "2026-08-20T10:00:00+02:00",
-      "content": "> **Ez egy minta esemény**, amely már elmúlt."
-    },
-    {
       "id": "intezmeny-varoshaza",
       "section": "intezmenyek",
       "category": "Városháza",
@@ -264,6 +244,26 @@
       "phone": "",
       "email": "",
       "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött adatokkal."
+    },
+    {
+      "id": "2026-09-06-a-budapestrol-kitelepitettekre-emlekeznek",
+      "section": "esemenyek",
+      "category": "Programok",
+      "title": "2026-09-06 - A Budapestről kitelepítettekre emlékeznek",
+      "excerpt": "A Mezőberényi Német Hagyományápoló Egyesület szervezésében",
+      "image_url": null,
+      "event_date": "2026-09-06T14:00:00+02:00",
+      "content": "A Mezőberényi Német Hagyományápoló Egyesület szervezésében a Budapestről kitelepítettekre emlékeznek 2026. szeptember 6-án a Kitelepítési Emlékműnél. További információ: Frei Zita, 30/339-8516."
+    },
+    {
+      "id": "2026-09-12-xv-mezoberenyi-toltott-kaposzta-fesztival",
+      "section": "esemenyek",
+      "category": "Programok",
+      "title": "2026-09-12 - XV Mezőberényi Töltött Káposzta Fesztivál",
+      "excerpt": "XV. Mezőberényi Töltött Káposzta Fesztivál\n2026. 09.12.\nHelyszín: Mezőberény, városi liget",
+      "image_url": "https://mezobereny.hu/assets/img_feltoltott/OPSKMM/202608/t%C3%B6lt%C3%B6tt%20k%C3%A1poszta%20PLAK%C3%81T.jpg",
+      "event_date": "2026-09-12T07:00:00+02:00",
+      "content": "XV. Mezőberényi Töltött Káposzta Fesztivál\n2026. 09.12.\nHelyszín: Mezőberény, városi liget\n\n7:00 A káposztafőző verseny kezdete\n9:00 A XV. Mezőberényi Töltött Káposzta Fesztivál megnyitója, Köszöntőt mond: Siklósi István, Mezőberény város polgármestere\n9:10 A \"Legszebb konyhakertek\" verseny díjátadása\n9:40 Szenior örömtánc bemutatója\n10:00 Spice Pop - Kpop interaktív gyermekműsor\n11:00 Erősember-verseny a Csárda Gym közreműködésével (nevezés a helyszínen)\n13:00 Döndi Duó és Roli - élő koncert\n14:15 Berényi Népdalkör fellépése\n14:30 Berény Táncegyüttes műsora\n14:55 Dance Fanatic Ladies Group\n15:20 Mezőberényi Malom-Fitness DSE\n16:00  A főzőverseny eredményhirdetése\n16:45 ABBA Tribute show\n18:00 Budapest Show Band\n20:00 Dirty Slippers\n\n \n\nKísérőprogram:\n10:00 - 18:00 Mezőberényi Települési Értéktár sarok\n10:00 - 16:00 kézműves foglalkozás és múzeumi játszósarok\n14-17 lovaglás\n10-13 íjászat\n\nugrálóvár\nA helyszínen büfé üzemel.\n\nA szervezők a műsorváltozás jogát fenntartják!\n\nA belépés Ingyenes, minden kedves érdeklődőt szeretettel várunk!"
     }
   ]
 }
