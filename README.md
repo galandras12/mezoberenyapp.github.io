@@ -14,6 +14,7 @@ Nincs backend, nincs adatbázis és **nincs build lépés** — minden statikus 
 
 - [Fájlszerkezet](#fájlszerkezet)
 - [GitHub Pages bekapcsolása](#github-pages-bekapcsolása)
+- [Sötét és világos téma](#sötét-és-világos-téma)
 - [Tartalom szerkesztése — áttekintés](#tartalom-szerkesztése--áttekintés)
   - [Események](#események)
   - [Intézmények](#intézmények)
@@ -67,6 +68,27 @@ További nézetek: `#/felfedezes` (keresés és kategóriaszűrés a hírek köz
 3. **Branch:** `main`, mappa: **`/ (root)`** — majd **Save**
 4. Néhány perc múlva az oldal elérhető lesz:
    `https://galandras12.github.io/mezoberenyapp.github.io/`
+
+---
+
+## Sötét és világos téma
+
+Az alkalmazás mindkét témát támogatja. A **bal felső sarokban** lévő kör alakú
+gomb vált közöttük:
+
+- **világos témában** fekete körben fehér fogyó hold (kattintásra sötét lesz)
+- **sötét témában** fehér körben fekete napocska (kattintásra világos lesz)
+
+A gomb helye: mobilon a fejléc bal szélén (részletnézetben a képre lebegve),
+desktopon az oldalsáv tetején.
+
+Amíg a látogató nem választ kézzel, az alkalmazás a **rendszer** beállítását
+követi, és menet közbeni váltásra (pl. esti automatikus sötét mód) is reagál.
+A kézi választást a böngésző elmenti, így legközelebb is megmarad.
+
+A színek CSS változókban (tokenekben) vannak, a komponensek nem tartalmaznak
+beégetett színt — ezért egy szín módosításához elég a `:root` blokkot és a
+sötét téma blokkját szerkeszteni az `assets/css/app.css` fájl tetején.
 
 ---
 
@@ -151,6 +173,11 @@ kerül. A bejegyzés részletes nézetének alján megjelenik a
 | `address` | Cím — a listában és a részletnézetben is látszik. |
 | `phone` | Telefonszám — a részletnézetben kattintható (hívás indul). |
 | `email` | E-mail cím — a részletnézetben kattintható. |
+
+> **Hol látszanak ezek?** A listában helytakarékosságból csak a cím (vagy ha az
+> nincs, a telefonszám) jelenik meg. A teljes kapcsolati blokk — cím, telefon,
+> e-mail — és a weboldal gomb a **bejegyzésre koppintva**, a részletes nézetben
+> érhető el.
 
 ---
 
