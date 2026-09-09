@@ -1,0 +1,62 @@
+name: Hírek frissítése
+
+on:
+  schedule:
+    # Minden óra 0. percében (UTC).
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+# A GITHUB_TOKEN írhasson a repóba — külön secret nem kell.
+permissions:
+  contents: write
+
+concurrency:
+  group: update-news
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Repó letöltése
+        uses: actions/checkout@v4
+
+      - name: Python beállítása
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scraper/requirements.txt
+
+      - name: Függőségek telepítése
+        run: pip install -r scraper/requirements.txt
+
+      - name: Scraper futtatása
+        run: python scraper/scrape.py
+
+      - name: Változás commitolása
+        run: |
+          if git diff --quiet -- data/news.json; then
+            echo "A news.json nem változott, nincs mit commitolni."
+            exit 0
+          fi
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/news.json
+          git commit -m "chore: hírek frissítése [skip ci]"
+
+          # Közben érkezhetett másik commit — rebase, majd újrapróbálás.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "A push nem sikerült ($attempt. próba), újrapróbálás…"
+            sleep $((attempt * 5))
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+          done
+
+          echo "A push három próbálkozás után sem sikerült." >&2
+          exit 1
