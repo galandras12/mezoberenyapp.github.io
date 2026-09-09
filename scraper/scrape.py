@@ -36,9 +36,9 @@ MAX_ARTICLES = int(os.environ.get("MB_MAX_ARTICLES", "200"))
 # Futásonként legfeljebb ennyi új hírnél keresünk képet (a futásidő korlátozására).
 MAX_IMAGE_LOOKUPS = int(os.environ.get("MB_MAX_IMAGE_LOOKUPS", "12"))
 
-OUTPUT_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "news.json"
-)
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUTPUT_PATH = os.path.join(_ROOT, "data", "news.json")
+STATUS_PATH = os.path.join(_ROOT, "data", "status.json")
 
 TZ = ZoneInfo("Europe/Budapest")
 
@@ -280,6 +280,41 @@ def lookup_image(article: dict) -> tuple[str | None, str | None]:
     return body_image, body_image
 
 
+def write_status(ok: bool, message: str = "") -> None:
+    """
+    A frontend ebből tudja, hogy a legutóbbi hírlekérés sikerült-e.
+
+    Csak akkor írunk, ha az állapot ténylegesen változott — különben minden
+    futás módosítaná a fájlt, és fölösleges commitok születnének.
+    """
+    existing = None
+    if os.path.exists(STATUS_PATH):
+        try:
+            with open(STATUS_PATH, encoding="utf-8") as handle:
+                existing = json.load(handle)
+        except (OSError, json.JSONDecodeError):
+            existing = None
+
+    if existing and existing.get("ok") is ok and existing.get("message") == message:
+        return
+
+    payload = {
+        "ok": ok,
+        "message": message,
+        "changed_at": datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z"),
+    }
+
+    os.makedirs(os.path.dirname(STATUS_PATH), exist_ok=True)
+    with open(STATUS_PATH, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+
+    log(f"Állapot frissítve: {'rendben' if ok else 'HIBA — ' + message}")
+
+
 def load_existing() -> dict:
     if not os.path.exists(OUTPUT_PATH):
         return {"articles": []}
@@ -308,6 +343,7 @@ def main() -> int:
         except ScrapeError as error:
             if page == 0:
                 log(f"HIBA: {error}")
+                write_status(False, "A forrásoldal nem érhető el.")
                 return 1
             log(f"! A(z) {page + 1}. oldal kihagyva: {error}")
             continue
@@ -323,6 +359,7 @@ def main() -> int:
             "megváltozott a forrásoldal HTML szerkezete. A meglévő news.json "
             "változatlan marad."
         )
+        write_status(False, "A forrásoldal szerkezete megváltozott.")
         return 1
 
     existing = load_existing()
@@ -374,6 +411,7 @@ def main() -> int:
     # 24 fölösleges commitot hozna létre.
     if articles == existing.get("articles"):
         log(f"Nincs változás ({len(articles)} hír) — a news.json érintetlen marad")
+        write_status(True)
         return 0
 
     log(f"Összesen {len(articles)} hír mentése ({with_images} képpel)")
@@ -392,13 +430,25 @@ def main() -> int:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
 
+    write_status(True)
     log(f"Kész: {OUTPUT_PATH}")
     return 0
 
 
 if __name__ == "__main__":
+    # A workflow ezzel jelzi, ha a futás a scraperen kívül bukott el
+    # (pl. függőségtelepítés) — ilyenkor a szkript maga nem futott le.
+    if "--mark-failure" in sys.argv:
+        write_status(False, "A frissítési folyamat nem futott le.")
+        sys.exit(0)
+
     try:
         sys.exit(main())
     except ScrapeError as error:
         log(f"HIBA: {error}")
+        write_status(False, str(error))
         sys.exit(1)
+    except Exception as error:  # noqa: BLE001 - váratlan hiba is látszódjon
+        log(f"VÁRATLAN HIBA: {error}")
+        write_status(False, "Váratlan hiba a feldolgozás során.")
+        raise

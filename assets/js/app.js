@@ -19,11 +19,40 @@
   ];
 
   var INFO_SECTIONS = {
-    esemenyek:     { title: 'Események',     sub: 'Városi programok és rendezvények' },
-    intezmenyek:   { title: 'Intézmények',   sub: 'Hivatalok, iskolák, szolgáltatók' },
-    elerhetosegek: { title: 'Elérhetőségek', sub: 'Kapcsolat és ügyfélfogadás' },
-    egyeb:         { title: 'Egyéb',         sub: 'Hasznos tudnivalók' }
+    esemenyek: {
+      title: 'Események',
+      sub: 'Városi programok és rendezvények',
+      kind: 'events'
+    },
+    intezmenyek: {
+      title: 'Intézmények',
+      sub: 'Hivatalok, iskolák, szolgáltatók',
+      kind: 'directory',
+      // Ebben a sorrendben jelennek meg a kategóriák; a listán kívüli
+      // kategóriák a végére kerülnek, így új kategória is működik.
+      order: ['Városháza', 'Orlai ház', 'Óvoda', 'Oktatás', 'Iskola',
+              'Egészségügy', 'Humánsegítő'],
+      linkLabel: 'Tovább az intézmény weboldalára'
+    },
+    elerhetosegek: {
+      title: 'Elérhetőségek',
+      sub: 'Kapcsolat és ügyfélfogadás',
+      kind: 'directory',
+      order: ['Önkormányzat', 'Városháza', 'Óvodák', 'Orlai ház',
+              'Humánsegítő/Városüzemeltetés'],
+      linkLabel: 'Tovább a weboldalra'
+    },
+    egyeb: {
+      title: 'Egyéb',
+      sub: 'Linkek és kapcsolat',
+      kind: 'misc'
+    }
   };
+
+  // A hírfrissítés hibája esetén megjelenő tájékoztató szöveg.
+  var NEWS_PROBLEM_TEXT =
+    'Probléma adódott az utolsó hírek lekérése során. Elképzelhető, hogy a ' +
+    'weboldalon karbantartás folyik. Hamarosan frissítjük a hírfolyamot.';
 
   var view = document.getElementById('view');
 
@@ -93,6 +122,47 @@
     return isNaN(date.getTime()) ? null : date;
   }
 
+  /*
+   * Minden időpontot Europe/Budapest szerint jelenítünk meg, függetlenül
+   * attól, hol nézik az oldalt: egy városi esemény 17:00-kor kezdődik akkor
+   * is, ha a látogató másik időzónában van. A böngésző alapértelmezés
+   * szerint a helyi zónában formázna, ezért adjuk meg kifejezetten.
+   */
+  var TZ = 'Europe/Budapest';
+
+  function tzFormat(date, options) {
+    try {
+      var config = { timeZone: TZ };
+      for (var key in options) {
+        if (Object.prototype.hasOwnProperty.call(options, key)) {
+          config[key] = options[key];
+        }
+      }
+      return new Intl.DateTimeFormat(options.locale || 'hu-HU', config).format(date);
+    } catch (error) {
+      return null; // Nagyon régi böngésző: a hívó helyi időre esik vissza.
+    }
+  }
+
+  /** [év, hónap, nap] a budapesti naptár szerint. */
+  function tzDateParts(date) {
+    var text = tzFormat(date, {
+      locale: 'en-CA', year: 'numeric', month: '2-digit', day: '2-digit'
+    });
+    if (!text) {
+      return [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+    }
+    return text.split('-').map(Number);
+  }
+
+  function tzTime(date) {
+    var text = tzFormat(date, {
+      locale: 'en-GB', hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    return text || (String(date.getHours()).padStart(2, '0') + ':' +
+      String(date.getMinutes()).padStart(2, '0'));
+  }
+
   /** "3 órája", "tegnap", "2026. 08. 12." — a kortól függően. */
   function relativeTime(value) {
     var date = parseDate(value);
@@ -103,7 +173,9 @@
     if (minutes < 60) return minutes + ' perce';
     var hours = Math.floor(minutes / 60);
     if (hours < 24) return hours + ' órája';
-    var days = Math.floor(hours / 24);
+    // Naptári napokban számolunk, hogy a "tegnap" tényleg tegnapot jelentsen.
+    var days = -(daysUntil(value) || 0);
+    if (days <= 0) return hours + ' órája';
     if (days === 1) return 'tegnap';
     if (days < 7) return days + ' napja';
     if (days < 30) return Math.floor(days / 7) + ' hete';
@@ -113,17 +185,47 @@
   function formatDate(value) {
     var date = parseDate(value);
     if (!date) return '';
-    return date.getFullYear() + '. ' +
-      String(date.getMonth() + 1).padStart(2, '0') + '. ' +
-      String(date.getDate()).padStart(2, '0') + '.';
+    var parts = tzDateParts(date);
+    return parts[0] + '. ' + String(parts[1]).padStart(2, '0') + '. ' +
+      String(parts[2]).padStart(2, '0') + '.';
+  }
+
+  /** Hány naptári nap választ el a megadott naptól (negatív = múlt). */
+  function daysUntil(value) {
+    var date = parseDate(value);
+    if (!date) return null;
+    function midnight(parts) {
+      return Date.UTC(parts[0], parts[1] - 1, parts[2]);
+    }
+    var target = midnight(tzDateParts(date));
+    var today = midnight(tzDateParts(new Date()));
+    return Math.round((target - today) / 86400000);
+  }
+
+  function countdownLabel(days) {
+    if (days === null) return '';
+    if (days < 0) return 'Véget ért';
+    if (days === 0) return 'Ma';
+    if (days === 1) return 'Holnap';
+    return days + ' nap múlva';
+  }
+
+  /** "2026. 09. 20., szombat 17:00" — az esemény teljes időpontja. */
+  function formatEventDate(value) {
+    var date = parseDate(value);
+    if (!date) return '';
+    var weekday = tzFormat(date, { weekday: 'long' });
+    var time = tzTime(date);
+    var text = formatDate(value) + (weekday ? ', ' + weekday : '');
+    // A 00:00 azt jelenti, hogy csak dátumot adtak meg — ilyenkor nincs óra.
+    if (time && time !== '00:00') text += ' ' + time;
+    return text;
   }
 
   function formatDateTime(value) {
     var date = parseDate(value);
     if (!date) return '';
-    return formatDate(value) + ' ' +
-      String(date.getHours()).padStart(2, '0') + ':' +
-      String(date.getMinutes()).padStart(2, '0');
+    return formatDate(value) + ' ' + tzTime(date);
   }
 
   /**
@@ -204,7 +306,7 @@
 
   // ------------------------------------------------------------------ Data --
 
-  var store = { news: null, info: null };
+  var store = { news: null, info: null, status: null };
 
   function loadJSON(path) {
     return fetch(path, { cache: 'no-cache' }).then(function (response) {
@@ -231,13 +333,42 @@
     return loadJSON('data/info.json').then(function (data) {
       var items = (data && Array.isArray(data.items) ? data.items : [])
         .filter(function (item) { return item && item.title && item.id; });
-      store.info = { lastUpdated: data && data.last_updated, items: items };
+      store.info = {
+        lastUpdated: data && data.last_updated,
+        links: (data && data.links) || {},
+        items: items
+      };
       return store.info;
     }).catch(function () {
-      // Az info.json hiánya ne törje el az alkalmazást.
-      store.info = { lastUpdated: null, items: [] };
+      // Az info.json hiánya vagy hibás JSON ne törje el az alkalmazást.
+      store.info = { lastUpdated: null, links: {}, items: [] };
       return store.info;
     });
+  }
+
+  /**
+   * A scraper írja a data/status.json-t. Ha a legutóbbi hírfrissítés
+   * elbukott, tájékoztató sávot jelenítünk meg — a meglévő hírek közben
+   * továbbra is olvashatók maradnak.
+   */
+  function loadStatus() {
+    if (store.status) return Promise.resolve(store.status);
+    return loadJSON('data/status.json').then(function (data) {
+      store.status = { ok: !data || data.ok !== false };
+      return store.status;
+    }).catch(function () {
+      // Hiányzó status.json nem jelent hibát (pl. első futás előtt).
+      store.status = { ok: true };
+      return store.status;
+    });
+  }
+
+  function newsBanner(status) {
+    if (!status || status.ok) return '';
+    return '<div class="banner" role="status">' +
+      '<span class="banner__icon">' + icon('i-alert') + '</span>' +
+      '<span>' + esc(NEWS_PROBLEM_TEXT) + '</span>' +
+      '</div>';
   }
 
   // ------------------------------------------------------------ Components --
@@ -352,12 +483,16 @@
   function renderNewsHome() {
     view.innerHTML = topbar() + '<div class="container">' + skeletonList(4) + '</div>';
 
-    loadNews().then(function (data) {
+    Promise.all([loadNews(), loadStatus()]).then(function (loaded) {
+      var data = loaded[0];
+      var banner = newsBanner(loaded[1]);
       var articles = data.articles;
+
       if (!articles.length) {
-        view.innerHTML = topbar() + '<div class="container">' +
+        view.innerHTML = topbar() + '<div class="container">' + banner +
           stateBlock('i-inbox', 'Még nincsenek hírek',
-            'A hírek óránként frissülnek a mezobereny.hu oldalról. Nézz vissza később.') +
+            'A hírek munkanapokon 8 és 18 óra között frissülnek a ' +
+            'mezobereny.hu oldalról. Nézz vissza később.') +
           footerNote(data.lastUpdated) + '</div>';
         return;
       }
@@ -366,7 +501,7 @@
       var rest = articles.slice(5, 17);
 
       view.innerHTML = topbar() +
-        '<div class="container">' +
+        '<div class="container">' + banner +
           '<div class="section-head">' +
             '<h2 class="section-head__title">Friss hírek</h2>' +
             '<a class="section-head__link" href="#/felfedezes">Összes</a>' +
@@ -416,7 +551,9 @@
     view.innerHTML = topbar({ back: '#/hirek', search: false }) +
       '<div class="container">' + skeletonList(5) + '</div>';
 
-    loadNews().then(function (data) {
+    Promise.all([loadNews(), loadStatus()]).then(function (loaded) {
+      var data = loaded[0];
+      var banner = newsBanner(loaded[1]);
       var categories = ['Összes'];
       data.articles.forEach(function (article) {
         var name = article.category || 'Általános';
@@ -427,7 +564,7 @@
       var query = '';
 
       view.innerHTML = topbar({ back: '#/hirek', search: false }) +
-        '<div class="container">' +
+        '<div class="container">' + banner +
           '<div class="page-head">' +
             '<h1 class="page-head__title">Felfedezés</h1>' +
             '<p class="page-head__sub">Mezőberény hírei egy helyen · ' +
@@ -557,39 +694,83 @@
     }).catch(renderDataError);
   }
 
-  function renderInfoSection(sectionId) {
+  /* ---- Események: közelgők visszaszámlálóval, alattuk a lezajlottak ---- */
+
+  function eventRow(item, past) {
+    var days = daysUntil(item.event_date);
+    var label = countdownLabel(days);
+    var when = formatEventDate(item.event_date);
+
+    return '<a class="row' + (past ? ' row--past' : '') + '" href="#/info/' +
+      esc(item.id) + '">' +
+      media(item, { cls: 'row__media', thumb: true }) +
+      '<div class="row__body">' +
+        '<div class="row__cat">' + esc(item.category || 'Esemény') + '</div>' +
+        '<h3 class="row__title">' + esc(item.title) + '</h3>' +
+        (item.excerpt ? '<p class="row__excerpt">' + esc(item.excerpt) + '</p>' : '') +
+        '<div class="row__meta">' +
+          (label
+            ? '<span class="countdown' + (past ? ' countdown--past' : '') + '">' +
+              esc(label) + '</span>'
+            : '') +
+          (when
+            ? icon('i-calendar') + '<span>' + esc(when) + '</span>'
+            : '<span>Időpont később</span>') +
+        '</div>' +
+      '</div>' +
+    '</a>';
+  }
+
+  function renderEvents(sectionId) {
     var meta = INFO_SECTIONS[sectionId];
-    view.innerHTML = topbar({ search: false }) + '<div class="container">' + skeletonList(4) + '</div>';
+    view.innerHTML = topbar({ search: false }) +
+      '<div class="container">' + skeletonList(4) + '</div>';
 
     loadInfo().then(function (data) {
-      var items = data.items.filter(function (item) { return item.section === sectionId; });
+      var items = data.items.filter(function (item) {
+        return item.section === sectionId;
+      });
+
+      var head = '<div class="page-head">' +
+        '<h1 class="page-head__title">' + esc(meta.title) + '</h1>' +
+        '<p class="page-head__sub">' + esc(meta.sub) + '</p></div>';
 
       if (!items.length) {
-        view.innerHTML = topbar({ search: false }) + '<div class="container">' +
-          '<div class="page-head"><h1 class="page-head__title">' + esc(meta.title) + '</h1>' +
-          '<p class="page-head__sub">' + esc(meta.sub) + '</p></div>' +
-          stateBlock('i-inbox', 'Ez a rovat még üres',
-            'A tartalom a data/info.json fájlban szerkeszthető, közvetlenül a GitHubon.') +
+        view.innerHTML = topbar({ search: false }) + '<div class="container">' + head +
+          stateBlock('i-calendar', 'Még nincs meghirdetett esemény',
+            'Az események a data/info.json fájlban szerkeszthetők, közvetlenül a GitHubon.') +
           footerNote(data.lastUpdated, 'Kézzel szerkesztett tartalom') + '</div>';
         return;
       }
+
+      // Közelgő: legközelebbi elöl. Lezajlott: a legutóbbi elöl.
+      // Az időpont nélküli bejegyzések a közelgők végére kerülnek.
+      var upcoming = [];
+      var past = [];
+      items.forEach(function (item) {
+        var days = daysUntil(item.event_date);
+        if (days === null || days >= 0) upcoming.push(item); else past.push(item);
+      });
+
+      function byDate(direction) {
+        return function (a, b) {
+          var left = a.event_date || '9999';
+          var right = b.event_date || '9999';
+          return direction * String(left).localeCompare(String(right));
+        };
+      }
+      upcoming.sort(byDate(1));
+      past.sort(byDate(-1));
 
       var categories = ['Összes'];
       items.forEach(function (item) {
         var name = item.category || 'Egyéb';
         if (categories.indexOf(name) < 0) categories.push(name);
       });
-
-      var pinned = items.filter(function (item) { return item.pinned; });
-      var rest = items.filter(function (item) { return !item.pinned; });
       var activeCategory = 'Összes';
 
       view.innerHTML = topbar({ search: false }) +
-        '<div class="container">' +
-          '<div class="page-head">' +
-            '<h1 class="page-head__title">' + esc(meta.title) + '</h1>' +
-            '<p class="page-head__sub">' + esc(meta.sub) + '</p>' +
-          '</div>' +
+        '<div class="container">' + head +
           (categories.length > 2 ? pills(categories, activeCategory, 'data-icat') : '') +
           '<div id="info-results"></div>' +
           footerNote(data.lastUpdated, 'Kézzel szerkesztett tartalom') +
@@ -599,38 +780,269 @@
 
       function apply() {
         function match(item) {
-          return activeCategory === 'Összes' || (item.category || 'Egyéb') === activeCategory;
+          return activeCategory === 'Összes' ||
+            (item.category || 'Egyéb') === activeCategory;
         }
-        var shownPinned = pinned.filter(match);
-        var shownRest = rest.filter(match);
-
+        var shownUpcoming = upcoming.filter(match);
+        var shownPast = past.filter(match);
         var html = '';
-        if (shownPinned.length) {
-          html += '<div class="section-head"><h2 class="section-head__title">Kiemelt</h2></div>' +
-            '<div class="list grid">' + shownPinned.map(infoRow).join('') + '</div>';
+
+        if (shownUpcoming.length) {
+          html += '<div class="list grid grid--wide">' +
+            shownUpcoming.map(function (item) { return eventRow(item, false); }).join('') +
+            '</div>';
+        } else {
+          html += stateBlock('i-calendar', 'Nincs közelgő esemény',
+            'Ebben a kategóriában jelenleg nincs meghirdetett program.');
         }
-        if (shownRest.length) {
-          if (shownPinned.length) {
-            html += '<div class="section-head"><h2 class="section-head__title">További tudnivalók</h2></div>';
-          }
-          html += '<div class="list grid">' + shownRest.map(infoRow).join('') + '</div>';
+
+        if (shownPast.length) {
+          html += '<section class="past-block">' +
+            '<div class="section-head">' +
+              '<h2 class="section-head__title">Véget ért események</h2>' +
+            '</div>' +
+            '<div class="list grid grid--wide">' +
+              shownPast.map(function (item) { return eventRow(item, true); }).join('') +
+            '</div></section>';
         }
-        results.innerHTML = html || stateBlock('i-inbox', 'Nincs találat',
-          'Ebben a kategóriában még nincs bejegyzés.');
+
+        results.innerHTML = html;
       }
 
-      view.addEventListener('click', function (event) {
-        var pill = event.target.closest('[data-icat]');
-        if (!pill) return;
-        activeCategory = pill.getAttribute('data-icat');
-        view.querySelectorAll('[data-icat]').forEach(function (node) {
-          node.setAttribute('aria-pressed', String(node === pill));
-        });
-        apply();
-      });
-
+      bindCategoryPills(apply, function (value) { activeCategory = value; });
       apply();
     }).catch(renderDataError);
+  }
+
+  /* ---- Intézmények / Elérhetőségek: kategóriákba rendezett névsor ---- */
+
+  /** A rögzített sorrend szerint rendezi a kategóriákat, a többit a végére. */
+  function sortCategories(names, order) {
+    var known = order || [];
+    return names.slice().sort(function (a, b) {
+      var indexA = known.indexOf(a);
+      var indexB = known.indexOf(b);
+      if (indexA < 0 && indexB < 0) return a.localeCompare(b, 'hu');
+      if (indexA < 0) return 1;
+      if (indexB < 0) return -1;
+      return indexA - indexB;
+    });
+  }
+
+  function directoryRow(item) {
+    return '<a class="row" href="#/info/' + esc(item.id) + '">' +
+      media(item, { cls: 'row__media', thumb: true }) +
+      '<div class="row__body">' +
+        '<div class="row__cat">' + esc(item.category || 'Egyéb') + '</div>' +
+        '<h3 class="row__title">' + esc(item.title) + '</h3>' +
+        (item.excerpt ? '<p class="row__excerpt">' + esc(item.excerpt) + '</p>' : '') +
+        (item.address || item.phone
+          ? '<div class="row__meta">' +
+            (item.address ? icon('i-map-pin') + '<span>' + esc(item.address) + '</span>'
+                          : icon('i-phone') + '<span>' + esc(item.phone) + '</span>') +
+            '</div>'
+          : '') +
+      '</div>' +
+    '</a>';
+  }
+
+  function renderDirectory(sectionId) {
+    var meta = INFO_SECTIONS[sectionId];
+    view.innerHTML = topbar({ search: false }) +
+      '<div class="container">' + skeletonList(4) + '</div>';
+
+    loadInfo().then(function (data) {
+      var items = data.items.filter(function (item) {
+        return item.section === sectionId;
+      });
+
+      var head = '<div class="page-head">' +
+        '<h1 class="page-head__title">' + esc(meta.title) + '</h1>' +
+        '<p class="page-head__sub">' + esc(meta.sub) + '</p></div>';
+
+      if (!items.length) {
+        view.innerHTML = topbar({ search: false }) + '<div class="container">' + head +
+          stateBlock('i-inbox', 'Ez a rovat még üres',
+            'A tartalom a data/info.json fájlban szerkeszthető, közvetlenül a GitHubon.') +
+          footerNote(data.lastUpdated, 'Kézzel szerkesztett tartalom') + '</div>';
+        return;
+      }
+
+      var present = [];
+      items.forEach(function (item) {
+        var name = item.category || 'Egyéb';
+        if (present.indexOf(name) < 0) present.push(name);
+      });
+      var ordered = sortCategories(present, meta.order);
+      var activeCategory = 'Összes';
+
+      view.innerHTML = topbar({ search: false }) +
+        '<div class="container">' + head +
+          pills(['Összes'].concat(ordered), activeCategory, 'data-icat') +
+          '<div id="info-results"></div>' +
+          footerNote(data.lastUpdated, 'Kézzel szerkesztett tartalom') +
+        '</div>';
+
+      var results = document.getElementById('info-results');
+
+      function apply() {
+        if (activeCategory !== 'Összes') {
+          var filtered = items.filter(function (item) {
+            return (item.category || 'Egyéb') === activeCategory;
+          });
+          results.innerHTML = '<div class="list grid">' +
+            filtered.map(directoryRow).join('') + '</div>';
+          return;
+        }
+
+        // "Összes" nézetben kategóriánként csoportosítunk, hogy egy hosszú
+        // intézménylista is átlátható maradjon.
+        results.innerHTML = ordered.map(function (name) {
+          var group = items.filter(function (item) {
+            return (item.category || 'Egyéb') === name;
+          });
+          return '<div class="section-head">' +
+            '<h2 class="section-head__title">' + esc(name) + '</h2>' +
+            '<span class="section-head__count">' + group.length + '</span></div>' +
+            '<div class="list grid">' + group.map(directoryRow).join('') + '</div>';
+        }).join('');
+      }
+
+      bindCategoryPills(apply, function (value) { activeCategory = value; });
+      apply();
+    }).catch(renderDataError);
+  }
+
+  /** A kategória-pillek eseménykezelője — mindhárom infó nézet használja. */
+  function bindCategoryPills(apply, setActive) {
+    view.addEventListener('click', function (event) {
+      var pill = event.target.closest('[data-icat]');
+      if (!pill) return;
+      setActive(pill.getAttribute('data-icat'));
+      view.querySelectorAll('[data-icat]').forEach(function (node) {
+        node.setAttribute('aria-pressed', String(node === pill));
+      });
+      apply();
+    });
+  }
+
+  /* ---- Egyéb: külső linkek és a fejlesztő elérhetőségei ---- */
+
+  function linkRow(options) {
+    var body = '<span class="linkrow__icon linkrow__icon--' + options.tone + '">' +
+      icon(options.icon) + '</span>' +
+      '<span class="linkrow__label">' + esc(options.label) + '</span>';
+
+    if (!options.href) {
+      // Még nincs megadva URL (pl. a Facebook oldal címe) — a sor látszik,
+      // de nem kattintható, így nem visz sehova félrevezetően.
+      return '<div class="linkrow linkrow--disabled">' + body +
+        '<span class="linkrow__note">Hamarosan</span></div>';
+    }
+
+    return '<a class="linkrow" href="' + esc(options.href) + '" target="_blank" ' +
+      'rel="noopener">' + body +
+      '<span class="linkrow__go">' + icon('i-chevron') + '</span></a>';
+  }
+
+  function renderMisc(sectionId) {
+    var meta = INFO_SECTIONS[sectionId];
+    view.innerHTML = topbar({ search: false }) +
+      '<div class="container">' + skeletonList(2) + '</div>';
+
+    loadInfo().then(function (data) {
+      var links = data.links || {};
+      var extras = data.items.filter(function (item) {
+        return item.section === sectionId;
+      });
+
+      var developerName = links.developer_name || 'Gál András';
+      var developerUrl = links.developer_url || '';
+      var developerMail = links.developer_email || '';
+
+      view.innerHTML = topbar({ search: false }) +
+        '<div class="container">' +
+          '<div class="page-head">' +
+            '<h1 class="page-head__title">' + esc(meta.title) + '</h1>' +
+            '<p class="page-head__sub">' + esc(meta.sub) + '</p>' +
+          '</div>' +
+
+          '<div class="linklist">' +
+            linkRow({
+              icon: 'i-facebook', tone: 'fb', label: 'A Város Facebook oldala',
+              href: links.facebook_url
+            }) +
+            linkRow({
+              icon: 'i-globe', tone: 'web', label: 'A város hivatalos honlapja',
+              href: links.website_url || 'https://mezobereny.hu'
+            }) +
+          '</div>' +
+
+          '<div class="dev">' +
+            '<h2 class="dev__title">Alkalmazás fejlesztő</h2>' +
+            '<div class="dev__row">' +
+              '<span class="dev__name">' + esc(developerName) + '</span>' +
+              (developerUrl
+                ? '<a class="dev__btn dev__btn--go" href="' + esc(developerUrl) + '" ' +
+                  'target="_blank" rel="noopener" aria-label="' + esc(developerName) +
+                  ' oldala">' + icon('i-arrow-right') + '</a>'
+                : '') +
+              (developerMail
+                ? '<a class="dev__btn" href="mailto:' + esc(developerMail) + '" ' +
+                  'aria-label="E-mail a fejlesztőnek">' + icon('i-mail') + '</a>'
+                : '') +
+            '</div>' +
+            '<p class="dev__note">Hiba illetve probléma esetén vegye fel a ' +
+              'kapcsolatot a fejlesztővel a fenti elérhetőségek egyikén!</p>' +
+          '</div>' +
+
+          (extras.length
+            ? '<div class="section-head">' +
+              '<h2 class="section-head__title">További tudnivalók</h2></div>' +
+              '<div class="list grid">' + extras.map(infoRow).join('') + '</div>'
+            : '') +
+
+          footerNote(data.lastUpdated, 'Kézzel szerkesztett tartalom') +
+        '</div>';
+    }).catch(renderDataError);
+  }
+
+  /** A részletnézet fejlécének metasora: eseménynél időpont, egyébként frissítés. */
+  function detailHeroMeta(item) {
+    if (item.event_date) {
+      var days = daysUntil(item.event_date);
+      var label = countdownLabel(days);
+      return '<div class="article__hero-meta">' + icon('i-calendar') +
+        '<span>' + esc(formatEventDate(item.event_date)) + '</span>' +
+        (label
+          ? '<span class="dot-sep"></span><span>' + esc(label) + '</span>'
+          : '') +
+        '</div>';
+    }
+    if (item.updated_at) {
+      return '<div class="article__hero-meta">' + icon('i-refresh') +
+        '<span>Frissítve: ' + esc(formatDate(item.updated_at)) + '</span></div>';
+    }
+    return '';
+  }
+
+  /** Kattintható kapcsolat-sorok: cím, telefon, e-mail. */
+  function contactBlock(item) {
+    var rows = '';
+    if (item.address) {
+      rows += '<div class="contact__row">' + icon('i-map-pin') +
+        '<span>' + esc(item.address) + '</span></div>';
+    }
+    if (item.phone) {
+      rows += '<a class="contact__row" href="tel:' +
+        esc(String(item.phone).replace(/[^+0-9]/g, '')) + '">' + icon('i-phone') +
+        '<span>' + esc(item.phone) + '</span></a>';
+    }
+    if (item.email) {
+      rows += '<a class="contact__row" href="mailto:' + esc(item.email) + '">' +
+        icon('i-mail') + '<span>' + esc(item.email) + '</span></a>';
+    }
+    return rows ? '<div class="contact">' + rows + '</div>' : '';
   }
 
   function renderInfoDetail(id) {
@@ -660,10 +1072,7 @@
           '<div class="article__hero-body">' +
             '<span class="badge">' + esc(item.category || 'Infó') + '</span>' +
             '<h1 class="article__hero-title">' + esc(item.title) + '</h1>' +
-            (item.updated_at
-              ? '<div class="article__hero-meta">' + icon('i-refresh') +
-                '<span>Frissítve: ' + esc(formatDate(item.updated_at)) + '</span></div>'
-              : '') +
+            detailHeroMeta(item) +
           '</div>' +
         '</div>' +
 
@@ -678,9 +1087,19 @@
               '</div>' +
             '</div>' +
           '</div>' +
-          '<div class="prose">' +
-            (formatContent(item.content) ||
-              (item.excerpt ? '<p>' + esc(item.excerpt) + '</p>' : '')) +
+          '<div>' +
+            '<div class="prose">' +
+              (formatContent(item.content) ||
+                (item.excerpt ? '<p>' + esc(item.excerpt) + '</p>' : '')) +
+            '</div>' +
+            contactBlock(item) +
+            (item.website_url
+              ? '<a class="readmore" href="' + esc(item.website_url) + '" ' +
+                'target="_blank" rel="noopener">' +
+                esc((INFO_SECTIONS[item.section] &&
+                     INFO_SECTIONS[item.section].linkLabel) ||
+                    'Tovább a weboldalra') + icon('i-external') + '</a>'
+              : '') +
           '</div>' +
         '</div>' +
       '</article>';
@@ -742,7 +1161,14 @@
     var section = sectionMatch && sectionMatch[1];
 
     if (section === 'felfedezes') { renderDiscover(); return scrollTop(); }
-    if (section && INFO_SECTIONS[section]) { renderInfoSection(section); return scrollTop(); }
+
+    if (section && INFO_SECTIONS[section]) {
+      var kind = INFO_SECTIONS[section].kind;
+      if (kind === 'events') renderEvents(section);
+      else if (kind === 'directory') renderDirectory(section);
+      else renderMisc(section);
+      return scrollTop();
+    }
 
     renderNewsHome();
     return scrollTop();

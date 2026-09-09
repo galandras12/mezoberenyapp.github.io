@@ -394,7 +394,8 @@ button {
 .row__meta {
   display: flex;
   align-items: center;
-  gap: 7px;
+  flex-wrap: wrap;
+  gap: 4px 7px;
   font-size: 12px;
   color: var(--muted);
   min-width: 0;
@@ -748,6 +749,205 @@ button {
 
 .footer-note a { color: var(--blue); }
 
+/* ---------------------------------------------------------------- Banner -- */
+
+/* Tájékoztató sáv, ha a hírfrissítés elbukott — a meglévő hírek maradnak. */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 6px 0 18px;
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  background: #fff8e6;
+  border: 1px solid #f5d98a;
+  color: #7a5312;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.banner__icon { flex: none; color: #b45309; display: grid; place-items: center; }
+.banner__icon .icon { width: 20px; height: 20px; }
+
+/* ------------------------------------------------------------ Countdown --- */
+
+.countdown {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex: none;
+}
+
+.countdown--past { background: var(--surface-2); color: var(--muted); }
+
+/* Lezajlott események: visszafogott, szürkített megjelenés. */
+.past-block { margin-top: 30px; }
+
+.past-block .section-head__title { color: var(--muted); }
+
+.row--past { opacity: 0.62; }
+.row--past .media { filter: grayscale(1); }
+.row--past .row__title { color: var(--text-2); font-weight: 600; }
+.row--past:hover { opacity: 0.85; }
+
+.section-head__count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* -------------------------------------------------------------- Contact --- */
+
+.contact {
+  display: grid;
+  gap: 2px;
+  margin: 18px 0 4px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.contact__row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 4px;
+  color: var(--text-2);
+  font-size: 14.5px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.contact__row .icon { color: var(--blue); width: 19px; height: 19px; }
+
+a.contact__row:hover { background: var(--surface); color: var(--text); }
+
+/* --------------------------------------------------------------- Links ---- */
+
+.linklist { display: grid; gap: 10px; margin: 4px 0 8px; }
+
+.linkrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+a.linkrow:hover {
+  background: var(--bg);
+  border-color: var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+a.linkrow:active { transform: scale(0.99); }
+
+.linkrow--disabled { opacity: 0.65; }
+
+.linkrow__icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: #fff;
+}
+
+.linkrow__icon .icon { width: 22px; height: 22px; }
+
+.linkrow__icon--fb { background: #1877f2; }
+.linkrow__icon--web { background: var(--blue); }
+
+.linkrow__label {
+  flex: 1;
+  min-width: 0;
+  font-weight: 650;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.linkrow__go { color: var(--muted); display: grid; place-items: center; flex: none; }
+.linkrow__go .icon { width: 18px; height: 18px; }
+
+.linkrow__note {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  flex: none;
+}
+
+/* ----------------------------------------------------------- Fejlesztő ---- */
+
+.dev { margin-top: 34px; }
+
+.dev__title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dev__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.dev__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 650;
+  font-size: 15px;
+}
+
+.dev__btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: var(--bg);
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.dev__btn:hover { background: var(--surface-2); color: var(--text); }
+.dev__btn:active { transform: scale(0.93); }
+
+/* A fejlesztő oldalára mutató nyíl zöld, hogy elkülönüljön az e-mailtől. */
+.dev__btn--go {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #fff;
+}
+
+.dev__btn--go:hover { background: #15803d; color: #fff; }
+
+.dev__note {
+  margin: 12px 2px 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
 /* --------------------------------------------------------------- Tabbar --- */
 
 .tabbar {
@@ -919,6 +1119,8 @@ button {
   .topbar__menu { display: none; }
 
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 26px; }
+
+  .grid--wide { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 30px; }
 
   .hero__card { flex-basis: calc(50% - 7px); }
 

@@ -1,95 +1,204 @@
 {
   "last_updated": "2026-09-09T00:00:00Z",
-  "_megjegyzes": "Ezt a fájlt kézzel szerkeszd (GitHub → Edit file). Az alábbi bejegyzések MINTÁK: írd át a saját, ellenőrzött adataidra, a feleslegeseket töröld. Mezők: id (egyedi, ékezet nélkül), section (esemenyek | intezmenyek | elerhetosegek | egyeb), category (szabadon választható, ebből lesznek a szűrő pillek), title, excerpt, content (** félkövér **, *dőlt*, - lista, ## alcím, [link](https://...) használható; a bekezdéseket üres sor választja el), image_url (vagy null), pinned (true/false), updated_at.",
+
+  "_szerkesztes": "Ezt a fájlt kézzel szerkeszd (GitHub → Edit file). A linkek a 'links' blokkban, a tartalmak az 'items' tömbben vannak. A mezők leírása a README.md-ben található.",
+
+  "links": {
+    "facebook_url": "",
+    "website_url": "https://mezobereny.hu",
+    "developer_name": "Gál András",
+    "developer_url": "https://github.com/galandras12",
+    "developer_email": "admin@galandras.com"
+  },
 
   "items": [
     {
-      "id": "varoshaza-nyitvatartas",
-      "section": "elerhetosegek",
-      "category": "Ügyfélfogadás",
-      "title": "Városháza ügyfélfogadási rend",
-      "excerpt": "MINTA BEJEGYZÉS — írd át a hivatal tényleges ügyfélfogadási idejére.",
-      "image_url": null,
-      "pinned": true,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Cseréld le a Városháza tényleges ügyfélfogadási rendjére, majd töröld ezt a figyelmeztetést.\n\n## Ügyfélfogadás\n\n- Hétfő: *(kitöltendő)*\n- Kedd: *(kitöltendő)*\n- Szerda: *(kitöltendő)*\n- Csütörtök: *(kitöltendő)*\n- Péntek: *(kitöltendő)*\n\n## Jó tudni\n\nAz ügyintézés egy része elektronikusan is elvégezhető az [Önkormányzati Hivatali Portálon](https://ohp-20.asp.lgov.hu/nyitolap).\n\nA hivatal elérhetőségeit és az aktuális változásokat a [mezobereny.hu](https://mezobereny.hu) oldalon ellenőrizd."
-    },
-    {
-      "id": "kozerdeku-telefonszamok",
-      "section": "elerhetosegek",
-      "category": "Kapcsolat",
-      "title": "Közérdekű telefonszámok",
-      "excerpt": "MINTA BEJEGYZÉS — gyűjtsd ide a legfontosabb helyi elérhetőségeket.",
-      "image_url": null,
-      "pinned": true,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött telefonszámokkal, majd töröld ezt a figyelmeztetést.\n\n## Általános segélyhívó\n\n- Egységes segélyhívó: **112**\n\n## Helyi elérhetőségek\n\n- Polgármesteri Hivatal: *(kitöltendő)*\n- Orvosi ügyelet: *(kitöltendő)*\n- Közvilágítás hibabejelentés: *(kitöltendő)*\n- Hulladékszállítás: *(kitöltendő)*\n\nA számokat érdemes évente egyszer átnézni, mert változhatnak."
-    },
-    {
-      "id": "polgarmesteri-hivatal",
-      "section": "intezmenyek",
-      "category": "Hivatal",
-      "title": "Polgármesteri Hivatal",
-      "excerpt": "MINTA BEJEGYZÉS — a hivatal bemutatása, címe és ügyintézési tudnivalók.",
-      "image_url": null,
-      "pinned": false,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Írd át a hivatal tényleges adataira.\n\n**Cím:** *(kitöltendő)*\n\n**Telefon:** *(kitöltendő)*\n\n**E-mail:** *(kitöltendő)*\n\n## Osztályok\n\n- Igazgatási osztály — *(kitöltendő)*\n- Pénzügyi osztály — *(kitöltendő)*\n- Műszaki osztály — *(kitöltendő)*"
-    },
-    {
-      "id": "konyvtar",
-      "section": "intezmenyek",
-      "category": "Kultúra",
-      "title": "Városi Könyvtár",
-      "excerpt": "MINTA BEJEGYZÉS — nyitvatartás, szolgáltatások, beiratkozás.",
-      "image_url": null,
-      "pinned": false,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Írd át a könyvtár tényleges adataira.\n\n## Nyitvatartás\n\n*(kitöltendő)*\n\n## Szolgáltatások\n\n- Kölcsönzés\n- Helyben olvasás\n- Internethasználat\n\n## Beiratkozás\n\n*(kitöltendő)*"
-    },
-    {
-      "id": "hulladeknaptar",
-      "section": "egyeb",
-      "category": "Közszolgáltatás",
-      "title": "Hulladékszállítási naptár",
-      "excerpt": "MINTA BEJEGYZÉS — mikor melyik hulladékot viszik el.",
-      "image_url": null,
-      "pinned": true,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Töltsd ki az aktuális szállítási rend szerint.\n\n## Szállítási rend\n\n- **Kommunális hulladék:** *(kitöltendő)*\n- **Szelektív (sárga zsák):** *(kitöltendő)*\n- **Zöldhulladék:** *(kitöltendő)*\n\n## Jó tudni\n\nA kukát a szállítás napján reggel *(kitöltendő)* óráig érdemes kitenni."
-    },
-    {
-      "id": "gyakori-kerdesek",
-      "section": "egyeb",
-      "category": "Ügyintézés",
-      "title": "Gyakori kérdések",
-      "excerpt": "MINTA BEJEGYZÉS — a leggyakoribb lakossági kérdések és válaszok.",
-      "image_url": null,
-      "pinned": false,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Bővítsd a valóban gyakran felmerülő kérdésekkel.\n\n## Hogyan intézhetek ügyet elektronikusan?\n\n*(kitöltendő)*\n\n## Hol találom a helyi rendeleteket?\n\nA hatályos rendeletek a [mezobereny.hu](https://mezobereny.hu) oldalon érhetők el.\n\n## Kihez fordulhatok szociális ügyben?\n\n*(kitöltendő)*"
-    },
-    {
-      "id": "rendezvenynaptar",
+      "id": "esemeny-minta-1",
       "section": "esemenyek",
       "category": "Programok",
-      "title": "Városi rendezvénynaptár",
-      "excerpt": "MINTA BEJEGYZÉS — az év kiemelt városi programjai egy helyen.",
+      "title": "MINTA — Városi rendezvény",
+      "excerpt": "Írd át az esemény nevére és rövid leírására.",
       "image_url": null,
-      "pinned": true,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Írd be ide az aktuális év programjait.\n\n## Állandó programok\n\n- *(kitöltendő)*\n\n## Kiemelt rendezvények\n\n- *(kitöltendő)*\n\nA friss programajánlókat a **Hírek** rovatban is megtalálod, a *Programok* kategóriában."
+      "event_date": "2026-09-20T17:00:00+02:00",
+      "content": "> **Ez egy minta esemény.** Írd át a saját adataidra, vagy töröld.\n\nAz esemény részletes leírása ide kerül. Több bekezdés is lehet.\n\n**Helyszín:** *(kitöltendő)*"
     },
     {
-      "id": "heti-piac",
+      "id": "esemeny-minta-2",
       "section": "esemenyek",
-      "category": "Rendszeres",
-      "title": "Heti piac",
-      "excerpt": "MINTA BEJEGYZÉS — a piac helye és időpontja.",
+      "category": "Kultúra",
+      "title": "MINTA — Kiállításmegnyitó",
+      "excerpt": "A második minta esemény, hogy látszódjon a sorrend.",
       "image_url": null,
-      "pinned": false,
-      "updated_at": "2026-09-09T00:00:00Z",
-      "content": "> **Ez egy minta bejegyzés.** Írd át a piac tényleges rendjére.\n\n**Helyszín:** *(kitöltendő)*\n\n**Időpont:** *(kitöltendő)*\n\nA piaccal kapcsolatos változásokról a Hírek rovatban adunk tájékoztatást."
+      "event_date": "2026-10-04T18:00:00+02:00",
+      "content": "> **Ez egy minta esemény.**\n\nA leírás ide kerül."
+    },
+    {
+      "id": "esemeny-minta-3",
+      "section": "esemenyek",
+      "category": "Programok",
+      "title": "MINTA — Már lezajlott esemény",
+      "excerpt": "Ez a múltban van, ezért a „Véget ért események” közé kerül.",
+      "image_url": null,
+      "event_date": "2026-08-20T10:00:00+02:00",
+      "content": "> **Ez egy minta esemény**, amely már elmúlt."
+    },
+
+    {
+      "id": "intezmeny-varoshaza",
+      "section": "intezmenyek",
+      "category": "Városháza",
+      "title": "MINTA — Városháza",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "https://mezobereny.hu",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra.\n\nAz intézmény bemutatása, feladatai, tudnivalók."
+    },
+    {
+      "id": "intezmeny-orlai-haz",
+      "section": "intezmenyek",
+      "category": "Orlai ház",
+      "title": "MINTA — Orlai ház",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+    },
+    {
+      "id": "intezmeny-ovoda",
+      "section": "intezmenyek",
+      "category": "Óvoda",
+      "title": "MINTA — Óvoda",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+    },
+    {
+      "id": "intezmeny-oktatas",
+      "section": "intezmenyek",
+      "category": "Oktatás",
+      "title": "MINTA — Oktatási intézmény",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+    },
+    {
+      "id": "intezmeny-iskola",
+      "section": "intezmenyek",
+      "category": "Iskola",
+      "title": "MINTA — Iskola",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+    },
+    {
+      "id": "intezmeny-egeszsegugy",
+      "section": "intezmenyek",
+      "category": "Egészségügy",
+      "title": "MINTA — Egészségügyi intézmény",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+    },
+    {
+      "id": "intezmeny-humansegito",
+      "section": "intezmenyek",
+      "category": "Humánsegítő",
+      "title": "MINTA — Humánsegítő Szolgálat",
+      "excerpt": "Az intézmény rövid bemutatása.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Írd át a valós adatokra."
+    },
+
+    {
+      "id": "elerhetoseg-onkormanyzat",
+      "section": "elerhetosegek",
+      "category": "Önkormányzat",
+      "title": "MINTA — Mezőberény Város Önkormányzata",
+      "excerpt": "Kapcsolattartási adatok.",
+      "image_url": null,
+      "website_url": "https://mezobereny.hu",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött adatokkal.\n\n## Ügyfélfogadás\n\n*(kitöltendő)*"
+    },
+    {
+      "id": "elerhetoseg-varoshaza",
+      "section": "elerhetosegek",
+      "category": "Városháza",
+      "title": "MINTA — Városháza",
+      "excerpt": "Kapcsolattartási adatok.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött adatokkal."
+    },
+    {
+      "id": "elerhetoseg-ovodak",
+      "section": "elerhetosegek",
+      "category": "Óvodák",
+      "title": "MINTA — Óvodák",
+      "excerpt": "Kapcsolattartási adatok.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött adatokkal."
+    },
+    {
+      "id": "elerhetoseg-orlai-haz",
+      "section": "elerhetosegek",
+      "category": "Orlai ház",
+      "title": "MINTA — Orlai ház",
+      "excerpt": "Kapcsolattartási adatok.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött adatokkal."
+    },
+    {
+      "id": "elerhetoseg-humansegito",
+      "section": "elerhetosegek",
+      "category": "Humánsegítő/Városüzemeltetés",
+      "title": "MINTA — Humánsegítő és Városüzemeltetés",
+      "excerpt": "Kapcsolattartási adatok.",
+      "image_url": null,
+      "website_url": "",
+      "address": "",
+      "phone": "",
+      "email": "",
+      "content": "> **Ez egy minta bejegyzés.** Töltsd ki ellenőrzött adatokkal."
     }
   ]
 }
