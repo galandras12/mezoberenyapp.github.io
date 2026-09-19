@@ -1,10 +1,13 @@
 # Mezőberény App
 
 Statikus, szerver nélküli hírolvasó és városi információs webalkalmazás, amely
-GitHub Pages-ről fut. A hírek **munkanapokon 8:00 és 18:00 között, óránként**
-frissülnek a [mezobereny.hu](https://mezobereny.hu/s/hirek) oldalról egy
-ütemezett GitHub Actions workflow segítségével; az Események, Intézmények,
+GitHub Pages-ről fut. A híreket a [mezobereny.hu](https://mezobereny.hu/s/hirek)
+oldalról egy GitHub Actions workflow gyűjti be; az Események, Intézmények,
 Elérhetőségek és Egyéb rovatokat kézzel szerkeszted.
+
+> ⚠️ **Az automatikus hírfrissítés jelenleg ki van kapcsolva**, mert a fiók
+> számlázási zárolása miatt a futások el sem indulnak. Részletek és
+> visszakapcsolás: [A hírek frissítése](#a-hírek-frissítése).
 
 Nincs backend, nincs adatbázis és **nincs build lépés** — minden statikus fájl.
 
@@ -313,11 +316,33 @@ már betöltött hírek megtalált képeit megtartja.
 
 ## A hírek frissítése
 
-A `.github/workflows/update-news.yml` workflow:
+### ⚠️ Az ütemezés jelenleg ki van kapcsolva
 
-- **munkanapokon (hétfő–péntek) 8:00 és 18:00 között, óránként** fut le —
-  hétvégén és éjszaka nem, mert olyankor jellemzően nem kerül fel új hír;
-- kézzel bármikor indítható: **Actions → Hírek frissítése → Run workflow**
+A `schedule` trigger ki van kommentezve a workflow fájlban. Ok: a fiók
+számlázási zárolása miatt a job **el sem indul** — a GitHub ezzel a
+hibaüzenettel utasítja vissza:
+
+> The job was not started because your account is locked due to a billing issue.
+
+Minden ütemezett futás így pár másodperc alatt elbukott (10 nap alatt 22
+sikertelen futás), és mindegyik hibaértesítő e-mailt küldött. Nem a workflow
+hibás: **publikus repóban a GitHub Actions ingyenes**, korlátlan futásidővel a
+standard futtatókon — a zárolás fiókszintű, és a **Settings → Billing** oldalon
+rendezhető.
+
+**Visszakapcsolás:** ha a zárolás megszűnt, a
+`.github/workflows/update-news.yml` fájlban töröld a `#` jeleket a `schedule`
+blokk elől (a fájl elején, kommentben ott a pontos teendő). Addig is a workflow
+**kézzel bármikor indítható**: Actions → Hírek frissítése → Run workflow.
+
+Amíg nincs automatikus frissítés, a hírek a [JSON szerkesztő](#json-szerkesztő-editor)
+kézi módjával is előállíthatók — az Actions nélkül működik.
+
+### A workflow működése
+
+- **kézzel indítható** bármikor: Actions → Hírek frissítése → Run workflow;
+- ütemezve (ha visszakapcsolod) **munkanapokon 8:00 és 18:00 között, óránként**
+  futna — hétvégén és éjszaka nem, mert olyankor jellemzően nem kerül fel új hír
   (kézi indításnál az időablak-korlátozás nem érvényes);
 - **csak akkor** commitol, ha a `data/` mappa ténylegesen változott;
 - a commit üzenete `[skip ci]`-t tartalmaz, így nem indít újabb futást.

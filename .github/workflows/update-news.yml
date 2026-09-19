@@ -1,11 +1,23 @@
 name: Hírek frissítése
 
 on:
-  schedule:
-    # UTC 6:00–17:00, hétfőtől péntekig. A cél a budapesti 8:00–18:00, de a
-    # cron nem ismeri a nyári időszámítást, ezért itt tágabb az ablak, és a
-    # "Időablak ellenőrzése" lépés vágja pontosra Europe/Budapest szerint.
-    - cron: '0 6-17 * * 1-5'
+  # Az ütemezett futás KIKAPCSOLVA.
+  #
+  # Miért: a fiók számlázási zárolása miatt a job el sem indul ("The job was
+  # not started because your account is locked due to a billing issue"),
+  # így minden ütemezett futás pár másodperc alatt elbukik, és hibaértesítőt
+  # küld. Nem a workflow hibás, és publikus repóban az Actions ingyenes —
+  # a zárolás fiókszintű, a GitHub Settings → Billing oldalon rendezhető.
+  #
+  # ÚJRA BEKAPCSOLÁS: ha a számlázási zárolás megszűnt, töröld a # jeleket a
+  # következő három sor elejéről. Addig is a workflow kézzel bármikor
+  # indítható: Actions → Hírek frissítése → Run workflow.
+  #
+  # schedule:
+  #   # UTC 6:00–17:00, hétfőtől péntekig. A cél a budapesti 8:00–18:00; a
+  #   # cron nem ismeri a nyári időszámítást, ezért tágabb az ablak, és az
+  #   # "Időablak ellenőrzése" lépés vágja pontosra Europe/Budapest szerint.
+  #   - cron: '0 6-17 * * 1-5'
   workflow_dispatch:
 
 # A GITHUB_TOKEN írhasson a repóba — külön secret nem kell.
